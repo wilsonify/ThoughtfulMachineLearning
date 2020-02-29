@@ -47,4 +47,5 @@ class TestCrossValidation(unittest.TestCase):
               else:
                 misses += 1
         print(misses / float(misses + successes))
-      print('Error rate was %f' % (misses / float(misses + successes)))
+      epsilon=0.0001
+      print('Error rate was %f' % (misses / float(misses + successes + epsilon)))

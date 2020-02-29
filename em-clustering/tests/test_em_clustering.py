@@ -5,7 +5,6 @@ import numpy as np
 
 from em_clustering import EMClustering
 
-
 class TestEMClustering(unittest.TestCase):
     def test_with_old_faithful(self):
         """test based on well known example - investigation of dependencies between eruption time
@@ -13,7 +12,7 @@ class TestEMClustering(unittest.TestCase):
 
         data = []
 
-        with open('tests/old_faithful.csv', 'r') as csvfile:
+        with open('old_faithful.csv', 'r') as csvfile:
             reader = csv.DictReader(csvfile)
             headers = reader.fieldnames[1:]
             for row in reader:

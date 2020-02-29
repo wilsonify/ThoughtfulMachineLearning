@@ -7,7 +7,7 @@ from email_object import EmailObject
 
 class TestMultipartEmailObject(unittest.TestCase):
   def setUp(self):
-    self.multipart_file = './tests/fixtures/multipart.eml'
+    self.multipart_file = 'fixtures/multipart.eml'
     with io.open(self.multipart_file, 'rb') as multipart:
       self.text = multipart.read().decode('utf-8')
       multipart.seek(0)

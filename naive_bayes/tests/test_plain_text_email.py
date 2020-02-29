@@ -9,7 +9,7 @@ class TestPlaintextEmailObject(unittest.TestCase):
   CLRF = "\n\n"
 
   def setUp(self):
-    self.plain_file = './tests/fixtures/plain.eml'
+    self.plain_file = 'fixtures/plain.eml'
     with io.open(self.plain_file, 'rb') as plaintext:
       self.text = plaintext.read().decode('utf-8')
       plaintext.seek(0)

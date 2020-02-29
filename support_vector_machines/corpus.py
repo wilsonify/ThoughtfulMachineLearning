@@ -1,11 +1,14 @@
 import io
+import os
 import re
 
-
+file_abs_path = os.path.abspath(__file__)
+parent_abs_path = os.path.abspath(os.path.join(file_abs_path,os.pardir))
+print(parent_abs_path)
 class Corpus(object):
   skip_regex = re.compile(r'[\'"\.\?\!]+')
   space_regex = re.compile(r'\s', re.UNICODE)
-  stop_words = [x.strip() for x in io.open('data/stopwords.txt', errors='ignore').readlines()]
+  stop_words = [x.strip() for x in io.open(parent_abs_path+'/data/stopwords.txt', errors='ignore').readlines()]
   sentiment_to_number = {'positive': 1, 'negative': -1}
 
   @classmethod

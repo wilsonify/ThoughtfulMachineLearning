@@ -8,7 +8,7 @@ from email_object import EmailObject
 
 class TestHTMLEmail(unittest.TestCase):
   def setUp(self):
-    with io.open('./tests/fixtures/html.eml', 'rb') as html_file:
+    with io.open('fixtures/html.eml', 'rb') as html_file:
       self.html = html_file.read().decode('utf-8')
       html_file.seek(0)
       self.html_email = EmailObject(html_file)

@@ -6,6 +6,9 @@ import os
 
 from sentiment_classifier import SentimentClassifier
 
+file_abs_path = os.path.abspath(__file__)
+parent_abs_path = os.path.abspath(os.path.join(file_abs_path,os.pardir))
+parent_parent_abs_path = os.path.abspath(os.path.join(parent_abs_path,os.pardir))
 
 class TestSentimentClassifier(unittest.TestCase):
   def setUp(self):
@@ -13,8 +16,8 @@ class TestSentimentClassifier(unittest.TestCase):
 
   def test_validate(self):
     """cross validates with an error of 35% or less"""
-    neg = self.split_file('data/rt-polaritydata/rt-polarity.neg')
-    pos = self.split_file('data/rt-polaritydata/rt-polarity.pos')
+    neg = self.split_file(parent_parent_abs_path+'/data/rt-polaritydata/rt-polarity.neg')
+    pos = self.split_file(parent_parent_abs_path+'/data/rt-polaritydata/rt-polarity.pos')
 
     classifier = SentimentClassifier.build([
       neg['training'],
@@ -35,8 +38,8 @@ class TestSentimentClassifier(unittest.TestCase):
   def test_validate_itself(self):
     """yields a zero error when it uses itself"""
     classifier = SentimentClassifier.build([
-      'data/rt-polaritydata/rt-polarity.neg',
-      'data/rt-polaritydata/rt-polarity.pos'
+      parent_parent_abs_path+'/data/rt-polaritydata/rt-polarity.neg',
+      parent_parent_abs_path+'/data/rt-polaritydata/rt-polarity.pos'
     ])
 
     c = 2 ** 7
@@ -44,10 +47,10 @@ class TestSentimentClassifier(unittest.TestCase):
     classifier.reset_model()
 
     n_er = self.validate(classifier,
-                         'data/rt-polaritydata/rt-polarity.neg',
+                         parent_parent_abs_path+'/data/rt-polaritydata/rt-polarity.neg',
                          'negative')
     p_er = self.validate(classifier,
-                         'data/rt-polaritydata/rt-polarity.pos',
+                         parent_parent_abs_path+'/data/rt-polaritydata/rt-polarity.pos',
                          'positive')
     total = Fraction(n_er.numerator + p_er.numerator,
                      n_er.denominator + p_er.denominator)
@@ -69,8 +72,8 @@ class TestSentimentClassifier(unittest.TestCase):
   def split_file(self, filepath):
     ext = os.path.splitext(filepath)[1]
     counter = 0
-    training_filename = 'tests/fixtures/training%s' % ext
-    validation_filename = 'tests/fixtures/validation%s' % ext
+    training_filename = parent_parent_abs_path+'/tests/fixtures/training%s' % ext
+    validation_filename = parent_parent_abs_path+'/tests/fixtures/validation%s' % ext
     with(io.open(filepath, errors='ignore')) as input_file:
       with(io.open(validation_filename, 'w')) as val_file:
         with(io.open(training_filename, 'w')) as train_file:
