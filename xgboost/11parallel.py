@@ -16,7 +16,7 @@ from sklearn.preprocessing import LabelEncoder
 from xgboost import XGBClassifier
 
 # load data
-data = read_csv('train.csv.zip')
+data = read_csv('data/otto-train.csv.zip')
 data = data.sample(10000)
 dataset = data.values
 # split data into X and y

@@ -11,8 +11,8 @@ from xgboost import XGBClassifier
 from scipy.optimize import differential_evolution
 
 print(sorted(sklearn.metrics.SCORERS.keys()))
-DATA_TRAIN_PATH = 'data/train.csv.zip'
-DATA_TEST_PATH = 'data/test.csv.zip'
+DATA_TRAIN_PATH = 'data/otto-train.csv.zip'
+DATA_TEST_PATH = 'data/otto-test.csv.zip'
 
 train = pd.read_csv(DATA_TRAIN_PATH)
 train = train.sample(1000)

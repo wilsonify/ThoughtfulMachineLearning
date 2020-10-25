@@ -28,7 +28,7 @@ from xgboost import XGBClassifier
 
 matplotlib.use('Agg')
 # load data
-data = read_csv('data/train.csv.zip')
+data = read_csv('data/otto-train.csv.zip')
 data = data.sample(10000)
 
 dataset = data.values
