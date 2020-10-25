@@ -4,14 +4,15 @@ from xgboost import XGBClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import LabelEncoder
+
 # load data
 dataframe = read_csv("data/horse-colic.csv")
 dataset = dataframe.values
 # split data into X and y
-X = dataset[:,0:27]
-Y = dataset[:,27]
+X = dataset[:, 0:27]
+Y = dataset[:, 27]
 # set missing values to 0
-X[X == ' ? ' ] = 0
+X[X == ' ? '] = 0
 # convert to numeric
 X = X.astype('float32')
 # encode Y class values as integers
@@ -22,7 +23,7 @@ label_encoded_y = label_encoder.transform(Y)
 seed = 7
 test_size = 0.33
 X_train, X_test, y_train, y_test = train_test_split(X, label_encoded_y,
-test_size=test_size, random_state=seed)
+                                                    test_size=test_size, random_state=seed)
 # fit model on training data
 model = XGBClassifier()
 model.fit(X_train, y_train)
