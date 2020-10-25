@@ -8,7 +8,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
 
 # load data
-data = read_csv('datasets-uci-breast-cancer.csv ', header=None)
+data = read_csv('data/breast-cancer.csv', header=None)
 dataset = data.values
 # split data into X and y
 X = dataset[:, 0:9]
