@@ -1,7 +1,7 @@
 import numpy as np
 import theanets
 
-from naive_bayes.tokenizer import Tokenizer
+from tml.naive_bayes.tokenizer import Tokenizer
 
 
 class Network(object):
