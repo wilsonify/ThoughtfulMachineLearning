@@ -1,0 +1,2 @@
+transformers[sentencepiece]>=4.16.2
+flair>=0.10.0
