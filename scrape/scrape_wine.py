@@ -19,20 +19,18 @@ columns_in_order = [
 
 def main():
     data = {}
-    result = pd.DataFrame.from_dict(data, orient="index")
+    result = pd.DataFrame.from_dict(data, orient="index",columns=columns_in_order)
     count = 0
     for i in range(1, 1000):
-        time.sleep(1)
+        time.sleep(5)
         url = f"{baseurl}/{i}"
         print(url)
         resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=100)
-        soup = bs4.BeautifulSoup(resp.text)
+        soup = bs4.BeautifulSoup(resp.text,features="lxml")
         for j, x in enumerate(soup.find_all(attrs={"class": ["listGridItemName"]})):
-            time.sleep(0.1)
-            result = pd.DataFrame.from_dict(data, orient="index")
-            result["price"] = pd.to_numeric(result["price"])
-            result["WS"] = pd.to_numeric(result["WS"])
-            result["JS"] = pd.to_numeric(result["JS"])
+            time.sleep(0.2)
+            result = pd.DataFrame.from_dict(data, orient="index",columns=columns_in_order)
+            ensure_dtypes(result)
             result[columns_in_order].to_csv("wine_spectator.csv")
             count += 1
             wine_url = "https://www.wine.com/product" + x.attrs["href"]
@@ -44,7 +42,7 @@ def main():
             except:
                 print(f"failed to get wine_url={wine_url}")
                 continue
-            wine_soup = bs4.BeautifulSoup(wine_resp.text)
+            wine_soup = bs4.BeautifulSoup(wine_resp.text,features="lxml")
             extract_meta(count, data, wine_soup)
             extract_prodAlcoholVolume(count, data, wine_soup)
             extract_prodAlcoholPercent(count, data, wine_soup)
@@ -53,6 +51,12 @@ def main():
     # import plotly.graph_objects as go
     # fig = go.Figure(data=[go.Scatter(x=result["price"], y=result["WS"], mode="markers", hovertext=result["name"])])
     # fig.show()
+
+
+def ensure_dtypes(result):
+    result["price"] = pd.to_numeric(result["price"])
+    result["WS"] = pd.to_numeric(result["WS"])
+    result["JS"] = pd.to_numeric(result["JS"])
 
 
 def extract_ratings(count, data, wine_soup):
