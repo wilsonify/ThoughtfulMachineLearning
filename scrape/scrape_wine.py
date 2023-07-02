@@ -1,3 +1,4 @@
+import math
 import time
 
 import bs4
@@ -20,11 +21,17 @@ columns_in_order = [
 
 def main():
     save_initial({})
+    resp = requests.get(baseurl, headers={"User-Agent": "Mozilla/5.0"}, timeout=100)
+    soup = bs4.BeautifulSoup(resp.text, features="lxml")
+    total_items = soup.find("span", class_="countItems").text.strip(" Items").replace(",", "")
+    total_items = int(total_items)
+    total_pages = math.floor(total_items / 25.0)
     count = 0
-    for i in range(1, 86):
-        time.sleep(1)
+    for i in range(1, total_pages + 1):
+        time.sleep(0.5)
         url = f"{baseurl}/{i}"
         print(url)
+        print(f"{i}/{total_pages} = {i / total_pages:0.2f}")
         resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=100)
         soup = bs4.BeautifulSoup(resp.text, features="lxml")
         for x in soup.find_all(attrs={"class": ["listGridItemName"]}):
@@ -34,7 +41,7 @@ def main():
             data[f"w{count:00002d}"] = {}
             data[f"w{count:00002d}"]["search_url"] = url
             data[f"w{count:00002d}"]["wine_url"] = wine_url
-            time.sleep(0.2)
+            time.sleep(0.1)
             try:
                 wine_resp = requests.get(wine_url, headers={"User-Agent": "Mozilla/5.0"}, timeout=100)
                 print(f"got wine_url={wine_url}")
@@ -52,7 +59,7 @@ def main():
 def save_progress(data):
     result = pd.DataFrame.from_dict(data, orient="index", columns=columns_in_order)
     ensure_dtypes(result)
-    result[columns_in_order].to_csv(result_filename, mode='a')
+    result[columns_in_order].to_csv(result_filename, mode='a', header=False)
 
 
 def save_initial(data):
