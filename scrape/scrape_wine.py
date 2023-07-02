@@ -6,7 +6,7 @@ import requests
 
 pd.options.plotting.backend = "plotly"
 
-baseurl = "https://www.wine.com/list/wine/wine-spectator/7155-202?sortBy=priceLowToHigh"
+baseurl = "https://www.wine.com/list/wine/wine-spectator/7155-202"
 
 columns_in_order = [
     "name", "wine_url", "productVarietal", "productStock", "productRegion", "productPrice", "productOrigin",
@@ -21,22 +21,19 @@ def main():
     data = {}
     result = pd.DataFrame.from_dict(data, orient="index", columns=columns_in_order)
     count = 0
-    for i in range(1, 1000):
-        time.sleep(5)
+    for i in range(1, 86):
+        time.sleep(1)
         url = f"{baseurl}/{i}"
         print(url)
         resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=100)
         soup = bs4.BeautifulSoup(resp.text, features="lxml")
-        for j, x in enumerate(soup.find_all(attrs={"class": ["listGridItemName"]})):
-            time.sleep(0.2)
-            result = pd.DataFrame.from_dict(data, orient="index", columns=columns_in_order)
-            ensure_dtypes(result)
-            result[columns_in_order].to_csv("wine_spectator.csv")
+        for x in soup.find_all(attrs={"class": ["listGridItemName"]}):
             count += 1
             wine_url = "https://www.wine.com/product" + x.attrs["href"]
-            data[f"w{count:0d}"] = {}
-            data[f"w{count:0d}"]["search_url"] = url
-            data[f"w{count:0d}"]["wine_url"] = wine_url
+            data[f"w{count:02d}"] = {}
+            data[f"w{count:02d}"]["search_url"] = url
+            data[f"w{count:02d}"]["wine_url"] = wine_url
+            time.sleep(0.2)
             try:
                 wine_resp = requests.get(wine_url, headers={"User-Agent": "Mozilla/5.0"}, timeout=100)
             except:
@@ -47,6 +44,9 @@ def main():
             extract_prodAlcoholVolume(count, data, wine_soup)
             extract_prodAlcoholPercent(count, data, wine_soup)
             extract_ratings(count, data, wine_soup)
+            result = pd.DataFrame.from_dict(data, orient="index", columns=columns_in_order)
+            ensure_dtypes(result)
+            result[columns_in_order].to_csv("wine_spectator.csv")
 
     # import plotly.graph_objects as go
     # fig = go.Figure(data=[go.Scatter(x=result["price"], y=result["WS"], mode="markers", hovertext=result["name"])])
@@ -65,13 +65,13 @@ def extract_ratings(count, data, wine_soup):
         for rating in ratings_list:
             initials = rating.find("span", class_="wineRatings_initials").text
             rating_value = rating.find("span", class_="wineRatings_rating").text
-            data[f"w{count:0d}"][initials] = rating_value
+            data[f"w{count:02d}"][initials] = rating_value
 
 
 def extract_prodAlcoholPercent(count, data, wine_soup):
     for n, b in enumerate(wine_soup.find_all(attrs={"class": ["prodAlcoholPercent_inner"]})):
         percent_element = b.find("span", class_="prodAlcoholPercent_percent")
-        data[f"w{count:0d}"][
+        data[f"w{count:02d}"][
             "prodAlcoholPercent_percent"
         ] = percent_element.text.strip()
 
@@ -79,7 +79,7 @@ def extract_prodAlcoholPercent(count, data, wine_soup):
 def extract_prodAlcoholVolume(count, data, wine_soup):
     for n, b in enumerate(wine_soup.find_all(attrs={"class": ["prodAlcoholVolume"]})):
         for c in b.find_all("span", class_="prodAlcoholVolume_text"):
-            data[f"w{count:0d}"]["prodAlcoholVolume_text"] = c.contents[0]
+            data[f"w{count:02d}"]["prodAlcoholVolume_text"] = c.contents[0]
 
 
 def extract_meta(count, data, wine_soup):
@@ -93,7 +93,7 @@ def extract_meta(count, data, wine_soup):
                     k = y.attrs["itemprop"]
                 except:
                     k = y.attrs["class"][0]
-            data[f"w{count:0d}"][k] = v
+            data[f"w{count:02d}"][k] = v
 
 
 if __name__ == "__main__":
