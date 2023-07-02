@@ -10,16 +10,16 @@ pd.options.plotting.backend = "plotly"
 baseurl = "https://www.wine.com/list/wine/wine-spectator/7155-202"
 
 columns_in_order = [
-    "name", "wine_url", "productVarietal", "productStock", "productRegion", "productPrice", "productOrigin",
-    "productID", "productCompetitiveIntensity", "ProductAvailability", "pProductID", "description", "pageName",
-    "shippingRegion", "shipToState", "priceCurrency", "price", "averageRating_bestRating", "averageRating_worstRating",
-    "bestRating", "worstRating", "additionalType", "uploadDate", "prodAlcoholVolume_text", "prodAlcoholPercent_percent",
-    "JS", "WS", "WW", "D", "BH", "W&S", "WE", "RP", "JD", "SJ", "V", "CG", "TP",
+    "search_url", "name", "wine_url", "productVarietal", "productStock", "productRegion", "productPrice",
+    "productOrigin", "productID", "productCompetitiveIntensity", "ProductAvailability", "pProductID", "description",
+    "pageName", "shippingRegion", "shipToState", "priceCurrency", "price", "averageRating_bestRating",
+    "averageRating_worstRating", "bestRating", "worstRating", "additionalType", "uploadDate", "prodAlcoholVolume_text",
+    "prodAlcoholPercent_percent", "JS", "WS", "WW", "D", "BH", "W&S", "WE", "RP", "JD", "SJ", "V", "CG", "TP",
 ]
 
 
 def main():
-    data = {}
+    save_initial({})
     count = 0
     for i in range(1, 86):
         time.sleep(1)
@@ -28,6 +28,7 @@ def main():
         resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=100)
         soup = bs4.BeautifulSoup(resp.text, features="lxml")
         for x in soup.find_all(attrs={"class": ["listGridItemName"]}):
+            data = {}
             count += 1
             wine_url = "https://www.wine.com/product" + x.attrs["href"]
             data[f"w{count:00002d}"] = {}
@@ -45,18 +46,19 @@ def main():
             extract_prodAlcoholVolume(count, data, wine_soup)
             extract_prodAlcoholPercent(count, data, wine_soup)
             extract_ratings(count, data, wine_soup)
-            if count % 500 == 0:
-                save_progress(data)
-    save_progress(data)
-    # import plotly.graph_objects as go
-    # fig = go.Figure(data=[go.Scatter(x=result["price"], y=result["WS"], mode="markers", hovertext=result["name"])])
-    # fig.show()
+            save_progress(data)
 
 
 def save_progress(data):
     result = pd.DataFrame.from_dict(data, orient="index", columns=columns_in_order)
     ensure_dtypes(result)
-    result[columns_in_order].to_csv()
+    result[columns_in_order].to_csv(result_filename, mode='a')
+
+
+def save_initial(data):
+    result = pd.DataFrame.from_dict(data, orient="index", columns=columns_in_order)
+    ensure_dtypes(result)
+    result[columns_in_order].to_csv(result_filename)
 
 
 def ensure_dtypes(result):
