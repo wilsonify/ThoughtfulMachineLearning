@@ -1,3 +1,4 @@
+import math
 import time
 from math import floor
 
@@ -28,7 +29,12 @@ columns_in_order = [
 
 def main():
     i_0, count, data = restore_progress()
-    for i in range(i_0, 86):
+    resp = requests.get(baseurl, headers={"User-Agent": "Mozilla/5.0"}, timeout=100)
+    soup = bs4.BeautifulSoup(resp.text, features="lxml")
+    total_items = soup.find("span", class_="countItems").text.strip(" Items").replace(",", "")
+    total_items = int(total_items)
+    total_pages = math.floor(total_items / 25.0)
+    for i in range(i_0, total_pages):
         time.sleep(1)
         url = f"{baseurl}/{i}"
         print(url)
