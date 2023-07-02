@@ -19,7 +19,10 @@ from pycaret.regression import (
     automl,
     predict_model,
     save_model,
-    load_model
+    load_model,
+    convert_model,
+    create_api,
+    create_docker
 )
 from pycaret.utils import version
 
@@ -162,9 +165,15 @@ predict_new = predict_model(best, data=df_test)
 predict_new.head()
 
 from matplotlib import pyplot as plt
-plt.scatter(predict_new['prediction_label'],df_test_truth)
+fig = plt.figure()
+ax = fig.add_subplot()
+ax.scatter(predict_new['prediction_label'],df_test_truth)
+ax.set_xlabel('predicted WS rating')
+ax.set_ylabel('actual WS rating')
 
 save_model(best, model_name='best-model')
+
+convert_model()
 
 loaded_bestmodel = load_model('best-model')
 print(loaded_bestmodel)
@@ -173,5 +182,11 @@ print(loaded_bestmodel[0])
 
 X_train = get_config('X_train')
 X_train.head()
+
+convert_model(best_model,'c')
+
+create_api(best_model,api_name='predict_ws_from_meta')
+
+create_docker(api_name='predict_ws_from_meta')
 
 
