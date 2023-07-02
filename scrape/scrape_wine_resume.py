@@ -1,9 +1,17 @@
 import time
+from math import floor
 
 import bs4
 import pandas as pd
 import requests
 
+from scrape_wine import (
+    extract_meta,
+    extract_prodAlcoholPercent,
+    extract_ratings,
+    save_progress,
+    extract_prodAlcoholVolume
+)
 result_filename = "wine_spectator.csv"
 pd.options.plotting.backend = "plotly"
 
@@ -19,9 +27,8 @@ columns_in_order = [
 
 
 def main():
-    data = {}
-    count = 0
-    for i in range(1, 86):
+    i_0, count, data = restore_progress()
+    for i in range(i_0, 86):
         time.sleep(1)
         url = f"{baseurl}/{i}"
         print(url)
@@ -36,7 +43,6 @@ def main():
             time.sleep(0.2)
             try:
                 wine_resp = requests.get(wine_url, headers={"User-Agent": "Mozilla/5.0"}, timeout=100)
-                print(f"got wine_url={wine_url}")
             except:
                 print(f"failed to get wine_url={wine_url}")
                 continue
@@ -45,7 +51,7 @@ def main():
             extract_prodAlcoholVolume(count, data, wine_soup)
             extract_prodAlcoholPercent(count, data, wine_soup)
             extract_ratings(count, data, wine_soup)
-            if count % 500 == 0:
+            if count % 1000 == 0:
                 save_progress(data)
     save_progress(data)
     # import plotly.graph_objects as go
@@ -53,53 +59,13 @@ def main():
     # fig.show()
 
 
-def save_progress(data):
-    result = pd.DataFrame.from_dict(data, orient="index", columns=columns_in_order)
-    ensure_dtypes(result)
-    result[columns_in_order].to_csv()
+def restore_progress():
 
-
-def ensure_dtypes(result):
-    result["price"] = pd.to_numeric(result["price"])
-    result["WS"] = pd.to_numeric(result["WS"])
-    result["JS"] = pd.to_numeric(result["JS"])
-
-
-def extract_ratings(count, data, wine_soup):
-    for n, z in enumerate(wine_soup.find_all(attrs={"class": ["wineRatings_list"]})):
-        ratings_list = z.find_all("li", class_="wineRatings_listItem")
-        for rating in ratings_list:
-            initials = rating.find("span", class_="wineRatings_initials").text
-            rating_value = rating.find("span", class_="wineRatings_rating").text
-            data[f"w{count:00002d}"][initials] = rating_value
-
-
-def extract_prodAlcoholPercent(count, data, wine_soup):
-    for n, b in enumerate(wine_soup.find_all(attrs={"class": ["prodAlcoholPercent_inner"]})):
-        percent_element = b.find("span", class_="prodAlcoholPercent_percent")
-        data[f"w{count:00002d}"][
-            "prodAlcoholPercent_percent"
-        ] = percent_element.text.strip()
-
-
-def extract_prodAlcoholVolume(count, data, wine_soup):
-    for n, b in enumerate(wine_soup.find_all(attrs={"class": ["prodAlcoholVolume"]})):
-        for c in b.find_all("span", class_="prodAlcoholVolume_text"):
-            data[f"w{count:00002d}"]["prodAlcoholVolume_text"] = c.contents[0]
-
-
-def extract_meta(count, data, wine_soup):
-    for y in wine_soup.find_all(name="meta"):
-        if "content" in y.attrs:
-            v = y.attrs["content"]
-            try:
-                k = y.attrs["name"]
-            except:
-                try:
-                    k = y.attrs["itemprop"]
-                except:
-                    k = y.attrs["class"][0]
-            data[f"w{count:00002d}"][k] = v
+    df = pd.read_csv(result_filename, index_col=0)
+    data = df.to_dict(orient="index")
+    wine_count = df.shape[0]
+    page_count = floor(wine_count / 25.0)
+    return page_count, wine_count, data
 
 
 if __name__ == "__main__":
