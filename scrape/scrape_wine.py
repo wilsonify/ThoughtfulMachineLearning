@@ -53,13 +53,13 @@ def main():
             extract_prodAlcoholVolume(count, data, wine_soup)
             extract_prodAlcoholPercent(count, data, wine_soup)
             extract_ratings(count, data, wine_soup)
-            save_progress(data)
+            save_progress(data,result_filename)
 
 
-def save_progress(data):
+def save_progress(data, filename):
     result = pd.DataFrame.from_dict(data, orient="index", columns=columns_in_order)
     ensure_dtypes(result)
-    result[columns_in_order].to_csv(result_filename, mode='a', header=False)
+    result[columns_in_order].to_csv(filename, mode='a', header=False)
 
 
 def save_initial(data):

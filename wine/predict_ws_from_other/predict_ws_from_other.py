@@ -25,7 +25,6 @@ from pycaret.regression import (
     create_docker
 )
 from pycaret.utils import version
-from yellowbrick.regressor import CooksDistance
 
 id_cols = ['productID',"name","pProductID", "wine_url","pageName","uploadDate"]
 target_cols = ['WS']
@@ -69,9 +68,9 @@ random.shuffle(indices)
 pick_k_random_indices = random.sample(indices, train_samples)
 not_picked_indices = set(indices).difference(pick_k_random_indices)
 df_train = df.loc[pick_k_random_indices, :]
-df_train = df_train.dropna(subset=target_cols, axis=0)
 df_train_id = df_train[id_cols]
 df_train = df_train.drop(id_cols, axis=1)
+df_train = df_train.dropna(subset=target_cols, axis=0)
 # -
 
 df_test = df.loc[not_picked_indices, :]
@@ -81,19 +80,6 @@ df_test = df_test.drop(id_cols, axis=1)
 df_test = df_test.drop(target_cols, axis=1)
 
 print(list(df.describe()))
-
-visualizer = CooksDistance()
-visualizer.fit(df_train[predictors], df_train["WS"])
-#visualizer.show()
-
-df_train['cooks'] = visualizer.distance_
-high_influence = df_train['cooks']>1.0
-high_price = df_train['price']>500
-
-df_train = df_train[~high_influence & ~high_price]
-df_train = df_train.drop('cooks',axis=1)
-
-df_train_id = df_train_id[~high_influence & ~high_price]
 
 print("2. Initialize Setup")
 reg1 = setup(

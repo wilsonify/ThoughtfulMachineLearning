@@ -14,7 +14,7 @@ from scrape_wine import (
     save_progress
 )
 
-result_filename = "wine_spectator_pa.csv"
+result_filename = "wines_ship_to_pa.csv"
 pd.options.plotting.backend = "plotly"
 
 baseurl = "https://www.wine.com/list/wine/7155"
@@ -62,7 +62,7 @@ def main():
             extract_prodAlcoholVolume(count, data, wine_soup)
             extract_prodAlcoholPercent(count, data, wine_soup)
             extract_ratings(count, data, wine_soup)
-            save_progress(data)
+            save_progress(data,result_filename)
 
 
 if __name__ == "__main__":
