@@ -1,0 +1,89 @@
+2023-07-03 19:22:59,818:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2023-07-03 19:22:59,819:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2023-07-03 19:22:59,819:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2023-07-03 19:22:59,819:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2023-07-03 19:23:00,361:WARNING:
+'prophet' is a soft dependency and not included in the pycaret installation. Please run: `pip install prophet` to install.
+2023-07-03 19:23:51,526:INFO:Initializing load_model()
+2023-07-03 19:23:51,527:INFO:load_model(model_name=best-model.pkl, platform=None, authentication=None, verbose=True)
+2023-07-03 19:24:03,373:INFO:Initializing load_model()
+2023-07-03 19:24:03,374:INFO:load_model(model_name=best-model, platform=None, authentication=None, verbose=True)
+2023-07-03 19:24:25,013:INFO:Initializing load_model()
+2023-07-03 19:24:25,013:INFO:load_model(model_name=best-model, platform=None, authentication=None, verbose=True)
+2023-07-03 19:25:49,036:INFO:Initializing predict_model()
+2023-07-03 19:25:49,036:INFO:predict_model(self=<pycaret.regression.oop.RegressionExperiment object at 0x7f219c60a580>, estimator=Pipeline(memory=FastMemory(location=/tmp/joblib),
+         steps=[('iterative_imputer',
+                 TransformerWrapper(transformer=IterativeImputer(cat_estimator=LGBMClassifier(random_state=2540),
+                                                                 cat_estimator_prepare_for_categoricals_type=(LGBMClassifier(random_state=2540),
+                                                                                                              {}),
+                                                                 categorical_indices=[],
+                                                                 max_iter=5,
+                                                                 num_estimator=LGBMRegressor(random_state=2540),
+                                                                 num_estimator...
+                                                AdaBoostRegressor(random_state=2540)),
+                                               ('Gradient Boosting Regressor',
+                                                GradientBoostingRegressor(random_state=2540)),
+                                               ('Support Vector Regression',
+                                                SVR()),
+                                               ('Light Gradient Boosting '
+                                                'Machine',
+                                                LGBMRegressor(random_state=2540)),
+                                               ('Random Forest Regressor',
+                                                RandomForestRegressor(n_jobs=-1,
+                                                                      random_state=2540))],
+                                   final_estimator=LinearRegression(n_jobs=-1),
+                                   n_jobs=-1, passthrough=True))]), probability_threshold=None, encoded_labels=False, raw_score=False, round=4, verbose=True, ml_usecase=None, preprocess=True, encode_labels=<function _SupervisedExperiment.predict_model.<locals>.encode_labels at 0x7f219ceae670>)
+2023-07-03 19:25:49,036:INFO:Checking exceptions
+2023-07-03 19:25:49,036:INFO:Preloading libraries
+2023-07-03 19:25:49,036:INFO:Set up data.
+2023-07-03 19:26:19,216:WARNING:/home/thom/venvs/fairlearn/lib/python3.9/site-packages/sklearn/base.py:493: FutureWarning: The feature names should match those that were passed during fit. Starting version 1.2, an error will be raised.
+Feature names unseen at fit time:
+- BH
+- CG
+- D
+- JD
+- JS
+- ...
+
+  warnings.warn(message, FutureWarning)
+
+2023-07-04 08:05:54,184:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2023-07-04 08:05:54,185:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2023-07-04 08:05:54,185:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2023-07-04 08:05:54,185:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2023-07-04 08:05:54,584:WARNING:
+'prophet' is a soft dependency and not included in the pycaret installation. Please run: `pip install prophet` to install.
+2023-07-04 08:05:56,633:INFO:Initializing load_model()
+2023-07-04 08:05:56,634:INFO:load_model(model_name=best-model, platform=None, authentication=None, verbose=True)
+2023-07-04 08:06:07,633:WARNING:/home/thom/venvs/fairlearn/lib/python3.9/site-packages/scipy/stats/_stats_py.py:112: RuntimeWarning: The input array could not be properly checked for nan values. nan values will be ignored.
+  warnings.warn("The input array could not be properly "
+
+2023-07-04 08:06:50,237:WARNING:/home/thom/venvs/fairlearn/lib/python3.9/site-packages/scipy/stats/_stats_py.py:112: RuntimeWarning: The input array could not be properly checked for nan values. nan values will be ignored.
+  warnings.warn("The input array could not be properly "
+
+2023-07-04 09:09:31,349:INFO:Initializing load_model()
+2023-07-04 09:09:31,350:INFO:load_model(model_name=best-model, platform=None, authentication=None, verbose=True)
+2023-07-04 10:33:26,281:INFO:Initializing load_model()
+2023-07-04 10:33:26,283:INFO:load_model(model_name=best-model, platform=None, authentication=None, verbose=True)
+2023-07-04 10:33:26,426:INFO:Initializing load_model()
+2023-07-04 10:33:26,426:INFO:load_model(model_name=./predict_ws_from_other/best-model-other, platform=None, authentication=None, verbose=True)
+2023-07-04 10:33:42,101:INFO:Initializing load_model()
+2023-07-04 10:33:42,102:INFO:load_model(model_name=best-model, platform=None, authentication=None, verbose=True)
+2023-07-04 10:33:42,240:INFO:Initializing load_model()
+2023-07-04 10:33:42,240:INFO:load_model(model_name=predict_ws_from_other/best-model-other, platform=None, authentication=None, verbose=True)
+2023-07-04 10:34:06,671:INFO:Initializing load_model()
+2023-07-04 10:34:06,672:INFO:load_model(model_name=best-model, platform=None, authentication=None, verbose=True)
+2023-07-04 10:34:06,756:INFO:Initializing load_model()
+2023-07-04 10:34:06,757:INFO:load_model(model_name=predict_ws_from_other/best-model-other, platform=None, authentication=None, verbose=True)
+2023-07-04 10:34:53,886:INFO:Initializing load_model()
+2023-07-04 10:34:53,886:INFO:load_model(model_name=best-model, platform=None, authentication=None, verbose=True)
+2023-07-04 10:34:54,015:INFO:Initializing load_model()
+2023-07-04 10:34:54,015:INFO:load_model(model_name=predict_ws_from_other/best-model-other, platform=None, authentication=None, verbose=True)
