@@ -10,7 +10,7 @@ from pydantic import create_model
 app = FastAPI()
 
 # Load trained Pipeline
-model = load_model("predict_ws_from_meta_api")
+model = load_model("best-model")
 
 # Create input/output pydantic models
 input_model = create_model("predict_ws_from_meta_api_input", **{
