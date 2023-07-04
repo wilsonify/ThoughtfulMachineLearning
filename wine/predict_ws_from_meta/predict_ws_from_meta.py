@@ -104,25 +104,25 @@ reg1 = setup(
 # +
 print("3. Compare Baseline")
 
-best_model = compare_models(fold=5)
+#best_model = compare_models(fold=5)
 # -
 
-print("4. Create Model")
-lr = create_model('lr')
-lr = tune_model(lr, n_iter=5, optimize='RMSE')
+#print("4. Create Model")
+#lr = create_model('lr')
+#lr = tune_model(lr, n_iter=5, optimize='RMSE')
 # evaluate_model(lr)
 
-rf = create_model('rf')
-rf = tune_model(rf, n_iter=5, optimize='RMSE')
+#rf = create_model('rf')
+#rf = tune_model(rf, n_iter=5, optimize='RMSE')
 # evaluate_model(rf)
 
-knn = create_model('knn')
-knn = tune_model(knn, n_iter=5, optimize='RMSE')
+#knn = create_model('knn')
+#knn = tune_model(knn, n_iter=5, optimize='RMSE')
 # evaluate_model(knn)
 
-print("5. Tune Hyperparameters")
-lightgbm = create_model('lightgbm')
-lightgbm = tune_model(lightgbm, n_iter=5, optimize='MAE')
+#print("5. Tune Hyperparameters")
+#lightgbm = create_model('lightgbm')
+#lightgbm = tune_model(lightgbm, n_iter=5, optimize='MAE')
 # evaluate_model(lightgbm)
 
 print("6. Ensemble Model")
@@ -145,30 +145,30 @@ print("8. Stack Models")
 
 stacker = stack_models(estimator_list=top_five)
 
-print("9. Analyze Model")
+#print("9. Analyze Model")
 
 # plot_model(dt)
 # plot_model(dt, plot='error')
 # plot_model(dt, plot='feature')
 # evaluate_model(dt)
 
-print("10. Interpret Model")
+#print("10. Interpret Model")
 
-interpret_model(lightgbm)
+#interpret_model(lightgbm)
 
-interpret_model(lightgbm, plot='correlation')
+#interpret_model(lightgbm, plot='correlation')
 
-interpret_model(lightgbm, plot='reason', observation=12)
+#interpret_model(lightgbm, plot='reason', observation=12)
 
 print("11. AutoML()")
 
-best = automl(optimize='MAE')
+best = automl(optimize='RMSE')
 print(best)
 
-print("12. Predict Model")
+#print("12. Predict Model")
 
-pred_holdouts = predict_model(lightgbm)
-pred_holdouts.head()
+#pred_holdouts = predict_model(lightgbm)
+#pred_holdouts.head()
 
 predict_new = predict_model(best, data=df_test)
 predict_new.head()
@@ -181,13 +181,13 @@ ax.set_ylabel('actual WS rating')
 
 save_model(best, model_name='best-model')
 
-loaded_bestmodel = load_model('best-model')
-print(loaded_bestmodel)
+#loaded_bestmodel = load_model('best-model')
+#print(loaded_bestmodel)
 
-print(loaded_bestmodel[0])
+#print(loaded_bestmodel[0])
 
-X_train = get_config('X_train')
-X_train.head()
+#X_train = get_config('X_train')
+#X_train.head()
 
 #convert_model(best_model, 'c')
 #convert_model(best_model, 'python')
@@ -205,6 +205,6 @@ X_train.head()
 #convert_model(best_model, 'vb')
 #convert_model(best_model, 'dart')
 
-create_api(best_model, api_name='predict_ws_from_meta')
+create_api(best, api_name='predict_ws_from_meta_api')
 
 create_docker(api_name='predict_ws_from_meta')
