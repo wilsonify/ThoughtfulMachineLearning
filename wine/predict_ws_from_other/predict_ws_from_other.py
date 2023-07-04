@@ -46,7 +46,7 @@ predictors = [
 
 print(f"pycaret version = {version()}")
 print("1. Loading Dataset")
-df = pd.read_csv("wine_spectator.csv")
+df = pd.read_csv("../wine_spectator.csv")
 df = df.drop_duplicates('wine_url') 
 
 # +
@@ -55,9 +55,9 @@ unnamed_cols=df.filter(regex="Unnamed")
 df = df.drop(categorical_cols, axis=1)
 df = df.drop(extra_cols, axis=1)
 df = df.drop(unnamed_cols, axis=1)
-df = df.drop(other_ratings, axis=1)
+df = df.drop(predictors, axis=1)
 
-df = df[id_cols+predictors+target_cols]
+df = df[id_cols+other_ratings+target_cols]
 indices = list(df.index)
 n_samples = len(indices)
 train_samples = int(0.8 * n_samples)
@@ -85,7 +85,7 @@ print("2. Initialize Setup")
 reg1 = setup(
     data=df_train,
     target="WS",
-    experiment_name='ws_from_meta',
+    experiment_name='ws_from_other',
     imputation_type='iterative',    
 )
 
@@ -125,7 +125,7 @@ print("7. Blend Models")
 
 list(models().index)
 
-top_five = compare_models(n_select=5, fold=5, include=list(models().index))
+top_five = compare_models(n_select=5, fold=5, include=list(models().index.difference(['gbr'])))
 
 blender = blend_models(estimator_list=top_five)
 
@@ -135,33 +135,39 @@ stacker = stack_models(estimator_list=top_five)
 
 print("9. Analyze Model")
 
-plot_model(dt)
+plot_model(stacker)
 
-plot_model(dt, plot='error')
+plot_model(stacker, plot='error')
 
-plot_model(dt, plot='feature')
-
-evaluate_model(dt)
+evaluate_model(stacker)
 
 print("10. Interpret Model")
 
-interpret_model(lightgbm)
+# +
+#interpret_model(stacker)
+# -
 
-interpret_model(lightgbm, plot='correlation')
+interpret_model(stacker, plot='correlation')
 
-interpret_model(lightgbm, plot='reason', observation=12)
+# +
+#interpret_model(stacker, plot='reason', observation=12)
+# -
 
 print("11. AutoML()")
 
-best = automl(optimize='MAE')
+best = automl(optimize='RMSE')
 print(best)
+
+save_model(best, model_name='best-model-other')
+
+loaded_bestmodel = load_model('best-model-other')
+print(loaded_bestmodel)
+
+print(loaded_bestmodel[0])
 
 print("12. Predict Model")
 
-pred_holdouts = predict_model(lightgbm)
-pred_holdouts.head()
-
-predict_new = predict_model(best, data=df_test)
+predict_new = predict_model(loaded_bestmodel, data=df_test)
 predict_new.head()
 
 from matplotlib import pyplot as plt
@@ -171,22 +177,10 @@ ax.scatter(predict_new['prediction_label'],df_test_truth)
 ax.set_xlabel('predicted WS rating')
 ax.set_ylabel('actual WS rating')
 
-save_model(best, model_name='best-model')
+# +
+#convert_model(best_model,'c')
+# -
 
-convert_model()
+create_api(loaded_bestmodel,api_name='predict_ws_from_other')
 
-loaded_bestmodel = load_model('best-model')
-print(loaded_bestmodel)
-
-print(loaded_bestmodel[0])
-
-X_train = get_config('X_train')
-X_train.head()
-
-convert_model(best_model,'c')
-
-create_api(best_model,api_name='predict_ws_from_meta')
-
-create_docker(api_name='predict_ws_from_meta')
-
-
+create_docker(api_name='predict_ws_from_other')
