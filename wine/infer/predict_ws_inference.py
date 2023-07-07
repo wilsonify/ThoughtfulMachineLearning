@@ -1,72 +1,60 @@
-import random
-from scipy.stats.mstats import gmean
+from functools import partial
 
-import numpy as np
 import pandas as pd
-from pycaret.regression import get_config
-from pycaret.regression import set_config
+from matplotlib import pyplot as plt
 from pycaret.regression import (
-    setup,
-    compare_models,
-    create_model,
-    tune_model,
-    ensemble_model,
-    models,
-    blend_models,
-    stack_models,
-    plot_model,
-    evaluate_model,
-    interpret_model,
-    automl,
-    predict_model,
-    save_model,
-    load_model,
-    convert_model,
-    create_api,
-    create_docker
+    load_model
 )
 from pycaret.utils import version
-from yellowbrick.regressor import CooksDistance
+from scipy.stats.mstats import gmean
 
-id_cols = ['productID',"name","pProductID", "wine_url","pageName","uploadDate"]
+pd.set_option('display.max_rows', 500)
+pd.set_option('display.max_columns', 500)
+pd.set_option('display.width', 1000)
+
+id_cols = ['productID', "name", "pProductID", "wine_url", "pageName", "uploadDate"]
 target_cols = ['WS']
-categorical_cols=[
-    "description", "productPrice", "productCompetitiveIntensity", "ProductAvailability", "priceCurrency", 	"additionalType" ,"productOrigin", "productVarietal", "productRegion"
+categorical_cols = [
+    "description", "productPrice", "productCompetitiveIntensity", "ProductAvailability", "priceCurrency",
+    "additionalType", "productOrigin", "productVarietal", "productRegion"
 ]
-extra_cols=["shippingRegion", "shipToState"]
-other_ratings = [ 'JS', 'WW', 'D', 'BH', 'W&S', 'WE', 'RP', 'JD', 'SJ', 'V', 'CG', 'TP' ]
+extra_cols = ["shippingRegion", "shipToState"]
+other_ratings = ['JS', 'WW', 'D', 'BH', 'W&S', 'WE', 'RP', 'JD', 'SJ', 'V', 'CG', 'TP']
 predictors = [
     'productStock',
     'price',
     'prodAlcoholPercent_percent'
-    #'averageRating_bestRating',
-    #'averageRating_worstRating',
-    #'bestRating',
-    #'worstRating',
-    #'prodAlcoholVolume_text',
+    # 'averageRating_bestRating',
+    # 'averageRating_worstRating',
+    # 'bestRating',
+    # 'worstRating',
+    # 'prodAlcoholVolume_text',
 ]
+model_columns = ['ws_pred_meta', 'ws_pred_other']
 
 print(f"pycaret version = {version()}")
 print("1. Loading Dataset")
-df = pd.read_csv("wines_ship_to_pa.csv")
-df = df.drop_duplicates('wine_url') 
+df = pd.read_csv("../wines_ship_to_pa.csv")
+df = df.drop_duplicates('wine_url')
 
 df['prodAlcoholVolume_text'].unique()
-[750., 0., 1500., 375., 187., 1000.,  500., 3000.,700., 6000.]
+[750., 0., 1500., 375., 187., 1000., 500., 3000., 700., 6000.]
 
-df = df[df['prodAlcoholVolume_text']==750]
+df = df[df['prodAlcoholVolume_text'] == 750]
 
-virtual_ws = load_model("best-model")
-virtual_ws_other = load_model("predict_ws_from_other/best-model-other")
+virtual_ws_meta = load_model("../predict_ws_from_meta/best-model")
+virtual_ws_other = load_model("../predict_ws_from_other/best-model-other")
+virtual_ws_ensemble = load_model("../ensemble/best-model-ensemble")
 
-df["ws_pred_1"] = virtual_ws.predict(df[predictors])
-df["ws_pred_2"] = virtual_ws_other.predict(df[other_ratings])
-df['ws_pred'] = gmean([df["ws_pred_1"],df["ws_pred_2"]])
+df["ws_pred_meta"] = virtual_ws_meta.predict(df[predictors])
 
-from matplotlib import pyplot as plt
+df["ws_pred_other"] = virtual_ws_other.predict(df[other_ratings])
+
+df['ws_pred'] = virtual_ws_ensemble.predict(df[model_columns])
+
 fig = plt.figure()
 ax = fig.add_subplot()
-ax.scatter(df['ws_pred'],df['WS'])
+ax.scatter(df['ws_pred'], df['WS'])
 ax.set_xlabel('predicted WS rating')
 ax.set_ylabel('actual WS rating')
 
@@ -82,38 +70,13 @@ def desire(h, low, target, high):
         return 1.0 + target / (high - target) - h / (high - target)
 
 
-
-from functools import partial
-
-pdesire = partial(desire,low=0, target=5, high=100)
-
-wdesire = partial(desire,low=89,target=100,high=105)
-
-x=pd.Series(np.arange(0,110))
-y=x.apply(pdesire)
-fig = plt.figure()
-ax = fig.add_subplot()
-ax.scatter(x,y)
-ax.set_xlabel('price')
-ax.set_ylabel('desire')
-
-x=pd.Series(np.arange(80,110))
-y=x.apply(wdesire)
-fig = plt.figure()
-ax = fig.add_subplot()
-ax.scatter(x,y)
-ax.set_xlabel('WS rating')
-ax.set_ylabel('desire')
+def composite(pd, wd):
+    return gmean([pd, wd], axis=0)
 
 
-# +
+pdesire = partial(desire, low=0, target=10, high=110)
 
-def composite(pd,wd):
-    return gmean([pd,wd],axis=0)
-    
-
-
-# -
+wdesire = partial(desire, low=85, target=99, high=100)
 
 df['price_desire'] = df['price'].apply(pdesire)
 
@@ -121,16 +84,16 @@ df['ws_desire'] = df['WS'].apply(wdesire)
 
 df['ws_pred_desire'] = df['ws_pred'].apply(wdesire)
 
-df['composite_desire_pred'] = composite(df['price_desire'],df['ws_pred_desire'])
+df['composite_desire_pred'] = composite(df['price_desire'], df['ws_pred_desire'])
 
-df['composite_desire'] = composite(df['price_desire'],df['ws_desire'])
+df['composite_desire'] = composite(df['price_desire'], df['ws_desire'])
 
-list(df.sort_values('composite_desire',ascending=False).head()['wine_url'])
+df = df.sort_values('composite_desire', ascending=False)
+print(df.head(6)[['name', 'productVarietal', 'WS', 'price']])
+print(list(df.head(6)['wine_url']))
 
-df.sort_values('composite_desire',ascending=False).head()[['name','WS','price']]
+df = df.sort_values('composite_desire_pred', ascending=False)
+print(df.head(6)[['name', 'productVarietal', 'ws_pred', 'price']])
+print(list(df.head(6)['wine_url']))
 
-list(df.sort_values('composite_desire_pred',ascending=False).head()['wine_url'])
-
-df.sort_values('composite_desire_pred',ascending=False).head()[['name','ws_pred','price']]
-
-
+df.to_csv("wines_ship_to_pa_pred.csv")
