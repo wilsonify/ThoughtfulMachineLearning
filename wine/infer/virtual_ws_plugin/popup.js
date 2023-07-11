@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
     chrome.tabs.sendMessage(tabs[0].id, { action: 'fetchData' }, function(response) {
       if (response) {
         // Update the input and output data on the popup page
-        document.getElementById('inputData').innerText = 'Input: ' + response.inputData;
-        document.getElementById('outputData').innerText = 'Prediction: ' + response.outputData;
+        document.getElementById('inputData').innerText = JSON.stringify(response.inputData);
+        document.getElementById('outputData').innerText = JSON.stringify(response.outputData);
       }
     });
   });

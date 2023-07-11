@@ -1,16 +1,37 @@
 // Listen for messages from the popup script
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.action === 'fetchData') {
-    // Extract the input data from the web page (modify this based on your webpage structure)
-    var productStockElement = document.getElementById('productStock');
-    var priceElement = document.getElementById('price');
-    var prodAlcoholPercentElement = document.getElementById('prodAlcoholPercent_percent');
-
-    var inputData = {
+      var inputData = {
       productStock: productStockElement ? productStockElement.textContent : '',
       price: priceElement ? priceElement.textContent : '',
       prodAlcoholPercent_percent: prodAlcoholPercentElement ? prodAlcoholPercentElement.textContent : '',
     };
+    // Extract the input data from the web page
+    // Extract the ratings
+    var ratingsList = document.querySelectorAll('.wineRatings_listItem');
+    for (var i = 0; i < ratingsList.length; i++) {
+      var initialsElement = ratingsList[i].querySelector('.wineRatings_initials');
+      var ratingValueElement = ratingsList[i].querySelector('.wineRatings_rating');
+      if (initialsElement && ratingValueElement) {
+        var initials = initialsElement.textContent.trim();
+        var ratingValue = ratingValueElement.textContent.trim();
+        inputData[`w${i.toString().padStart(5, '0')}`] = { initials: initials, rating: ratingValue };
+      }
+    }
+
+    // Extract the prodAlcoholPercent_percent
+    var percentElement = document.querySelector('.prodAlcoholPercent_percent');
+    if (percentElement) {
+      inputData[`w${i.toString().padStart(5, '0')}`] = { prodAlcoholPercent_percent: percentElement.textContent.trim() };
+    }
+
+    // Extract the prodAlcoholVolume_text
+    var volumeElement = document.querySelector('.prodAlcoholVolume_text');
+    if (volumeElement) {
+      inputData[`w${i.toString().padStart(5, '0')}`] = { prodAlcoholVolume_text: volumeElement.textContent.trim() };
+    }
+
+    console.log(inputData)
 
     // Make a request to your REST API with the input data
     // Modify the URL and request parameters as needed
