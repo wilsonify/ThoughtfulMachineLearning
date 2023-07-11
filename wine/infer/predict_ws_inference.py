@@ -8,10 +8,6 @@ from pycaret.regression import (
 from pycaret.utils import version
 from scipy.stats.mstats import gmean
 
-pd.set_option('display.max_rows', 500)
-pd.set_option('display.max_columns', 500)
-pd.set_option('display.width', 1000)
-
 id_cols = ['productID', "name", "pProductID", "wine_url", "pageName", "uploadDate"]
 target_cols = ['WS']
 categorical_cols = [
@@ -31,32 +27,6 @@ predictors = [
     # 'prodAlcoholVolume_text',
 ]
 model_columns = ['ws_pred_meta', 'ws_pred_other']
-
-print(f"pycaret version = {version()}")
-print("1. Loading Dataset")
-df = pd.read_csv("../wines_ship_to_pa.csv")
-df = df.drop_duplicates('wine_url')
-
-df['prodAlcoholVolume_text'].unique()
-[750., 0., 1500., 375., 187., 1000., 500., 3000., 700., 6000.]
-
-df = df[df['prodAlcoholVolume_text'] == 750]
-
-virtual_ws_meta = load_model("../predict_ws_from_meta/best-model")
-virtual_ws_other = load_model("../predict_ws_from_other/best-model-other")
-virtual_ws_ensemble = load_model("../ensemble/best-model-ensemble")
-
-df["ws_pred_meta"] = virtual_ws_meta.predict(df[predictors])
-
-df["ws_pred_other"] = virtual_ws_other.predict(df[other_ratings])
-
-df['ws_pred'] = virtual_ws_ensemble.predict(df[model_columns])
-
-fig = plt.figure()
-ax = fig.add_subplot()
-ax.scatter(df['ws_pred'], df['WS'])
-ax.set_xlabel('predicted WS rating')
-ax.set_ylabel('actual WS rating')
 
 
 def desire(h, low, target, high):
@@ -78,22 +48,52 @@ pdesire = partial(desire, low=0, target=10, high=110)
 
 wdesire = partial(desire, low=85, target=99, high=100)
 
-df['price_desire'] = df['price'].apply(pdesire)
 
-df['ws_desire'] = df['WS'].apply(wdesire)
+def main():
+    pd.set_option('display.max_rows', 500)
+    pd.set_option('display.max_columns', 500)
+    pd.set_option('display.width', 1000)
 
-df['ws_pred_desire'] = df['ws_pred'].apply(wdesire)
+    print(f"pycaret version = {version()}")
+    print("1. Loading Dataset")
+    df = pd.read_csv("../wines_ship_to_pa.csv")
+    df = df.drop_duplicates('wine_url')
 
-df['composite_desire_pred'] = composite(df['price_desire'], df['ws_pred_desire'])
+    df['prodAlcoholVolume_text'].unique()
+    # [750., 0., 1500., 375., 187., 1000., 500., 3000., 700., 6000.]
 
-df['composite_desire'] = composite(df['price_desire'], df['ws_desire'])
+    df = df[df['prodAlcoholVolume_text'] == 750]
 
-df = df.sort_values('composite_desire', ascending=False)
-print(df.head(6)[['name', 'productVarietal', 'WS', 'price']])
-print(list(df.head(6)['wine_url']))
+    virtual_ws_meta = load_model("../predict_ws_from_meta/best-model")
+    virtual_ws_other = load_model("../predict_ws_from_other/best-model-other")
+    virtual_ws_ensemble = load_model("../ensemble/best-model-ensemble")
 
-df = df.sort_values('composite_desire_pred', ascending=False)
-print(df.head(6)[['name', 'productVarietal', 'ws_pred', 'price']])
-print(list(df.head(6)['wine_url']))
+    df["ws_pred_meta"] = virtual_ws_meta.predict(df[predictors])
+    df["ws_pred_other"] = virtual_ws_other.predict(df[other_ratings])
+    df['ws_pred'] = virtual_ws_ensemble.predict(df[model_columns])
 
-df.to_csv("wines_ship_to_pa_pred.csv")
+    fig = plt.figure()
+    ax = fig.add_subplot()
+    ax.scatter(df['ws_pred'], df['WS'])
+    ax.set_xlabel('predicted WS rating')
+    ax.set_ylabel('actual WS rating')
+
+    df['price_desire'] = df['price'].apply(pdesire)
+    df['ws_desire'] = df['WS'].apply(wdesire)
+    df['ws_pred_desire'] = df['ws_pred'].apply(wdesire)
+    df['composite_desire_pred'] = composite(df['price_desire'], df['ws_pred_desire'])
+    df['composite_desire'] = composite(df['price_desire'], df['ws_desire'])
+
+    df = df.sort_values('composite_desire', ascending=False)
+    print(df.head(6)[['name', 'productVarietal', 'WS', 'price']])
+    print(list(df.head(6)['wine_url']))
+
+    df = df.sort_values('composite_desire_pred', ascending=False)
+    print(df.head(6)[['name', 'productVarietal', 'ws_pred', 'price']])
+    print(list(df.head(6)['wine_url']))
+
+    df.to_csv("wines_ship_to_pa_pred.csv")
+
+
+if __name__ == "__main__":
+    main()
