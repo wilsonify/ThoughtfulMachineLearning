@@ -10,11 +10,11 @@ from setuptools.command.build_ext import build_ext as build_ext_orig
 from setuptools.command.build_py import build_py as build_py_orig
 
 assert "__call__" in dir(cythonize)
-NAME = "tml-wine-infer"
+NAME = "tml-wine"
 VERSION = "1.0.0"
 
 extensions = [
-    Extension('tml_wine_infer.*', ['tml_wine_infer/**/*.py']),
+    Extension('tml_wine.*', ['tml_wine/**/*.py']),
 ]
 
 
@@ -72,7 +72,7 @@ setup(
     packages=find_packages(),
     package_data={'': []},
     include_package_data=True,
-    entry_points={'console_scripts': ['tml_wine_infer=tml_wine_infer.__main__:main']},
+    entry_points={'console_scripts': ['tml_wine=tml_wine.__main__:main']},
     long_description=""" Machine Learned Wine Rating Predictions """,
     ext_modules=cythonize(extensions, compiler_directives={'language_level': 3}),
     cmdclass={'build_py': build_py, 'build_ext': build_ext},

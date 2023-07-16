@@ -2,3 +2,4 @@ pycaret
 fastapi
 uvicorn
 cython
+pyinstaller
