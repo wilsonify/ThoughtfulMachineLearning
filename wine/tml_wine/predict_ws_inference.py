@@ -40,8 +40,8 @@ def desire(h, low, target, high):
         return 1.0 + target / (high - target) - h / (high - target)
 
 
-def composite(pd, wd):
-    return gmean([pd, wd], axis=0)
+def composite(pdes, wd):
+    return gmean([pdes, wd], axis=0)
 
 
 pdesire = partial(desire, low=0, target=10, high=110)

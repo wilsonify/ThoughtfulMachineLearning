@@ -1,10 +1,10 @@
 
 
 base:
-	docker build -f Dockerfile-base -t tml-wine-infer-base:latest .
+	docker build -f Dockerfile-base -t tml-wine-base:latest .
 
 builder:
-	docker build -f Dockerfile-builder -t tml-wine-infer-builder:latest .
+	docker build -f Dockerfile-builder -t tml-wine-builder:latest .
 
 image:
-	docker build -f Dockerfile -t tml-wine-infer:latest .
+	docker build -f Dockerfile -t tml-wine:latest .

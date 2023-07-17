@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import numpy as np
 import pandas as pd
 from pycaret.regression import load_model, predict_model
 from fastapi import FastAPI
@@ -13,7 +13,7 @@ app = FastAPI()
 model = load_model("predict_ws_from_other")
 
 # Create input/output pydantic models
-input_model = create_model("predict_ws_from_other_input", **{'JS': 93.0, 'WW': nan, 'D': nan, 'BH': nan, 'W&S': nan, 'WE': nan, 'RP': 92.0, 'JD': nan, 'SJ': nan, 'V': nan, 'CG': nan, 'TP': nan})
+input_model = create_model("predict_ws_from_other_input", **{'JS': 93.0, 'WW': np.nan, 'D': np.nan, 'BH': np.nan, 'W&S': np.nan, 'WE': np.nan, 'RP': 92.0, 'JD': np.nan, 'SJ': np.nan, 'V': np.nan, 'CG': np.nan, 'TP': np.nan})
 output_model = create_model("predict_ws_from_other_output", prediction=90.0)
 
 
