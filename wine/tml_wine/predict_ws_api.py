@@ -3,10 +3,6 @@
 from pycaret.regression import load_model
 from pydantic import create_model
 
-# Load trained Pipeline
-virtual_ws_meta = load_model("../predict_ws_from_meta/best-model")
-virtual_ws_other = load_model("../predict_ws_from_other/best-model-other")
-virtual_ws_ensemble = load_model("../ensemble/best-model-ensemble")
 
 # Create input/output pydantic models
 input_model = create_model("predict_ws_input", **{
