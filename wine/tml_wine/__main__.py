@@ -2,8 +2,8 @@ import pandas as pd
 import uvicorn
 from fastapi import FastAPI
 from pycaret.regression import load_model
-from predict_ws_api import input_model, output_model
-from predict_ws_inference import predictors, other_ratings, model_columns, pdesire, wdesire, composite
+from tml_wine.predict_ws_api import input_model, output_model
+from tml_wine.predict_ws_inference import predictors, other_ratings, model_columns, pdesire, wdesire, composite
 
 # Load the Models
 virtual_ws_meta = load_model("../predict_ws_from_meta/best-model")

@@ -13,11 +13,7 @@ assert "__call__" in dir(cythonize)
 NAME = "tml-wine"
 VERSION = "1.0.0"
 
-extensions = [
-    Extension('tml_wine.*', ['tml_wine/**/*.py']),
-]
-
-
+extensions = [ Extension('tml_wine.*', ['tml_wine/**/*.py']), ]
 class build_py(build_py_orig):
     def build_packages(self):
         """
@@ -25,14 +21,11 @@ class build_py(build_py_orig):
         dist will include only cythonized extensions.
         """
         pass
-
-
 class build_ext(build_ext_orig):
     """
     python modules need a __init__.py and a __main__.py
     even if they are empty
     """
-
     def run(self):
         build_ext_orig.run(self)
         build_dir = Path(self.build_lib)

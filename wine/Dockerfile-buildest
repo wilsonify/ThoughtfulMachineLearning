@@ -1,0 +1,5 @@
+FROM tml-wine-buildest:latest
+WORKDIR /app
+ADD . /app
+RUN python setup.py install
+RUN pyinstaller tml_wine/__main__.py
