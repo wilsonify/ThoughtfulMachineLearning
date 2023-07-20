@@ -1,3 +1,6 @@
+ver_file = echo "1.0.0" > build/$(1) && date +%Y-%m-%d >> $(1)
+
+all: clean run
 
 clean:
 	rm -rf build
@@ -6,17 +9,23 @@ clean:
 	find . -type f -name "*.o" -exec rm {} \;
 	find . -type f -name "*.so" -exec rm {} \;
 
-base: clean
-	docker build -f Dockerfile-base -t tml-wine-base:latest .
+build:
+	mkdir -p build && $(call ver_file, $@)
+
+dist:
+	mkdir -p dist && $(call ver_file, $@)
+
+base: clean build
+	docker build --progress plain -f Dockerfile-base -t tml-wine-base:latest . && $(call ver_file, $@)
 
 builder: base
-	docker build -f Dockerfile-builder -t tml-wine-builder:latest .
+	docker build --progress plain -f Dockerfile-builder -t tml-wine-builder:latest . && $(call ver_file, $@)
 
 buildest: builder
-	docker build -f Dockerfile-buildest -t tml-wine-buildest:latest .
+	docker build --progress plain -f Dockerfile-buildest -t tml-wine-buildest:latest . && $(call ver_file, $@)
 
 image: buildest
-	docker build -f Dockerfile -t tml-wine:latest .
+	docker build --progress plain -f Dockerfile -t tml-wine:latest . && $(call ver_file, $@)
 
 run: image
 	docker run --rm --name tml-wine -P tml-wine:latest
