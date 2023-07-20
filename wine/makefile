@@ -1,21 +1,19 @@
-ver_file = echo "1.0.0" > build/$(1) && date +%Y-%m-%d >> $(1)
+ver_file = echo "1.0.0" > "build/$(1)" && date +%Y-%m-%d >> $(1)
 
 all: clean run
 
 clean:
+	rm -rf logs.log
 	rm -rf build
 	rm -rf dist
 	find . -type f -name "*.c" -exec rm {} \;
 	find . -type f -name "*.o" -exec rm {} \;
 	find . -type f -name "*.so" -exec rm {} \;
 
-build:
+version.txt:
 	mkdir -p build && $(call ver_file, $@)
 
-dist:
-	mkdir -p dist && $(call ver_file, $@)
-
-base: clean build
+base: version.txt
 	docker build --progress plain -f Dockerfile-base -t tml-wine-base:latest . && $(call ver_file, $@)
 
 builder: base

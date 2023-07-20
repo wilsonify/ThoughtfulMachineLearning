@@ -4,8 +4,8 @@ import pandas as pd
 import uvicorn
 from fastapi import FastAPI
 from pycaret.regression import load_model
-from tml_wine.predict_ws_api import input_model, output_model
-from tml_wine.predict_ws_inference import predictors, other_ratings, model_columns, pdesire, wdesire, composite
+from tml_wine import input_model, output_model
+from tml_wine import predictors, other_ratings, model_columns, pdesire, wdesire, composite
 
 path_to_here = os.path.abspath(os.path.dirname(__file__))
 path_to_models= f"{path_to_here}/models"

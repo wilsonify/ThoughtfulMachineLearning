@@ -12,6 +12,7 @@ RUN pyinstaller \
     --collect-all pydantic \
     --collect-all fastapi \
     --collect-all uvicorn \
+    --collect-all sklearn \
     tml_wine/__main__.py
 
 # pyinstaller

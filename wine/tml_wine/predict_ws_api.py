@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from pycaret.regression import load_model
 from pydantic import create_model
+from pydantic import BaseModel, Field
+dir(BaseModel)
+dir(Field)
 
 
 # Create input/output pydantic models
