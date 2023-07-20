@@ -1,4 +1,5 @@
 FROM debian:buster-slim
 WORKDIR /app
 ADD . /app
-RUN apt-get update && apt-get install -y libgomp1
+RUN apt-get update -y && apt-get upgrade -y
+RUN grep -vE '^#' apt-requirements.txt | xargs apt-get install -y
