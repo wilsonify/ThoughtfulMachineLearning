@@ -14,6 +14,7 @@ libjpeg-dev
 liblzma-dev
 libncursesw5-dev
 libpng16-16
+libpthread-stubs0-dev
 libquadmath0
 libreadline-dev
 libsodium-dev
@@ -24,3 +25,4 @@ libwebp-dev
 libxau-dev
 netbase
 tzdata
+zlib1g-dev

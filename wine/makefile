@@ -3,12 +3,12 @@ ver_file = echo "1.0.0" > $(1) && date +%Y-%m-%d >> $(1)
 all: clean run
 
 clean:
-	rm -rf logs.log
 	rm -rf build
 	rm -rf dist
 	find . -type f -name "*.c" -exec rm {} \;
 	find . -type f -name "*.o" -exec rm {} \;
 	find . -type f -name "*.so" -exec rm {} \;
+	find . -type f -name "*.log" -exec rm {} \;
 
 build_dir:
 	mkdir -p build
@@ -32,5 +32,6 @@ run: build/image
 	docker run --rm --name tml-wine -p 32774:8000 tml-wine:latest
 
 dist:
-	docker create --rm --name tml-wine tml-wine:latest
+	docker create --name tml-wine-tmp tml-wine:latest
 	docker cp tml-wine:/app/dist .
+	docker rm tml-wine-tmp
