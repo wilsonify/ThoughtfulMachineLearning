@@ -1,0 +1,10 @@
+version: '3'
+services:
+  dex:
+    restart: unless-stopped
+    image: dexidp/dex:v2.37.0
+    ports:
+      - "5556:5556"
+    volumes:
+      - "./config.yaml:/etc/dex/config.docker.yaml"
+      - "./dex.db:/usr/local/src/dex/examples/dex.db"
