@@ -13,7 +13,11 @@ assert "__call__" in dir(cythonize)
 NAME = "tml-wine"
 VERSION = "1.0.0"
 
-extensions = [ Extension('tml_wine.*', ['tml_wine/**/*.py']), ]
+extensions = [
+    Extension("tml_wine.*", ["tml_wine/**/*.py"]),
+]
+
+
 class build_py(build_py_orig):
     def build_packages(self):
         """
@@ -21,11 +25,14 @@ class build_py(build_py_orig):
         dist will include only cythonized extensions.
         """
         pass
+
+
 class build_ext(build_ext_orig):
     """
     python modules need a __init__.py and a __main__.py
     even if they are empty
     """
+
     def run(self):
         build_ext_orig.run(self)
         build_dir = Path(self.build_lib)
@@ -34,17 +41,17 @@ class build_ext(build_ext_orig):
         logging.debug(f"build_dir = {build_dir}")
         logging.debug(f"root_dir = {root_dir}")
         logging.debug(f"target_dir = {target_dir}")
-        logging.warning(f'moving dsl/__init__.py from {root_dir} to {target_dir}')
+        logging.warning(f"moving dsl/__init__.py from {root_dir} to {target_dir}")
         try:
-            self.copy_file(Path('dsl/__init__.py'), root_dir, target_dir)
+            self.copy_file(Path("dsl/__init__.py"), root_dir, target_dir)
         except:
-            logging.warning(f'could not move dsl/__init__.py from {root_dir} to {target_dir}')
+            logging.warning(f"could not move dsl/__init__.py from {root_dir} to {target_dir}")
 
-        logging.warning(f'moving dsl/__main__.py from {root_dir} to {target_dir}')
+        logging.warning(f"moving dsl/__main__.py from {root_dir} to {target_dir}")
         try:
-            self.copy_file(Path('dsl/__main__.py'), root_dir, target_dir)
+            self.copy_file(Path("dsl/__main__.py"), root_dir, target_dir)
         except:
-            logging.warning(f'could not move dsl/__main__.py from {root_dir} to {target_dir}')
+            logging.warning(f"could not move dsl/__main__.py from {root_dir} to {target_dir}")
 
     def copy_file(self, path, source_dir, destination_dir):
         if not (source_dir / path).exists():
@@ -63,10 +70,10 @@ setup(
     url="",
     keywords=["datascience", "python"],
     packages=find_packages(),
-    package_data={'': []},
+    package_data={"": []},
     include_package_data=True,
-    entry_points={'console_scripts': ['tml_wine=tml_wine.__main__:main']},
+    entry_points={"console_scripts": ["tml_wine=tml_wine.__main__:main"]},
     long_description=""" Machine Learned Wine Rating Predictions """,
-    ext_modules=cythonize(extensions, compiler_directives={'language_level': 3}),
-    cmdclass={'build_py': build_py, 'build_ext': build_ext},
+    ext_modules=cythonize(extensions, compiler_directives={"language_level": 3}),
+    cmdclass={"build_py": build_py, "build_ext": build_ext},
 )
