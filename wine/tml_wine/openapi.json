@@ -1,0 +1,389 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Wine Observer",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/items/": {
+      "get": {
+        "summary": "Read Items",
+        "operationId": "read_items_items__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/predict": {
+      "post": {
+        "summary": "Predict",
+        "operationId": "predict_predict_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/predict_ws_input"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/predict_ws_output"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token": {
+      "post": {
+        "summary": "Login For Access Token",
+        "operationId": "login_for_access_token_token_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_login_for_access_token_token_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/me/": {
+      "get": {
+        "summary": "Read Users Me",
+        "operationId": "read_users_me_users_me__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/users/me/items/": {
+      "get": {
+        "summary": "Read Own Items",
+        "operationId": "read_own_items_users_me_items__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Body_login_for_access_token_token_post": {
+        "properties": {
+          "grant_type": {
+            "type": "string",
+            "pattern": "password",
+            "title": "Grant Type"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope",
+            "default": ""
+          },
+          "client_id": {
+            "type": "string",
+            "title": "Client Id"
+          },
+          "client_secret": {
+            "type": "string",
+            "title": "Client Secret"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "Body_login_for_access_token_token_post"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Token": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "token_type"
+        ],
+        "title": "Token",
+        "description": "Model representing the access token."
+      },
+      "User": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          },
+          "disabled": {
+            "type": "boolean",
+            "title": "Disabled"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username"
+        ],
+        "title": "User",
+        "description": "Model representing the user data."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "predict_ws_input": {
+        "properties": {
+          "productStock": {
+            "type": "number",
+            "title": "Productstock",
+            "default": 22.0
+          },
+          "price": {
+            "type": "number",
+            "title": "Price",
+            "default": 79.98999786376953
+          },
+          "prodAlcoholPercent_percent": {
+            "type": "number",
+            "title": "Prodalcoholpercent Percent",
+            "default": 14.5
+          },
+          "JS": {
+            "type": "number",
+            "title": "Js",
+            "default": 93.0
+          },
+          "WW": {
+            "type": "number",
+            "title": "Ww",
+            "default": 93.0
+          },
+          "D": {
+            "type": "number",
+            "title": "D",
+            "default": 93.0
+          },
+          "BH": {
+            "type": "number",
+            "title": "Bh",
+            "default": 93.0
+          },
+          "W&S": {
+            "type": "number",
+            "title": "W&S",
+            "default": 93.0
+          },
+          "WE": {
+            "type": "number",
+            "title": "We",
+            "default": 93.0
+          },
+          "RP": {
+            "type": "number",
+            "title": "Rp",
+            "default": 92.0
+          },
+          "JD": {
+            "type": "number",
+            "title": "Jd",
+            "default": 93.0
+          },
+          "SJ": {
+            "type": "number",
+            "title": "Sj",
+            "default": 93.0
+          },
+          "V": {
+            "type": "number",
+            "title": "V",
+            "default": 93.0
+          },
+          "CG": {
+            "type": "number",
+            "title": "Cg",
+            "default": 93.0
+          },
+          "TP": {
+            "type": "number",
+            "title": "Tp",
+            "default": 93.0
+          }
+        },
+        "type": "object",
+        "title": "predict_ws_input"
+      },
+      "predict_ws_output": {
+        "properties": {
+          "ws_pred": {
+            "type": "number",
+            "title": "Ws Pred",
+            "default": 90.0
+          },
+          "composite_desire": {
+            "type": "number",
+            "title": "Composite Desire",
+            "default": 100.0
+          }
+        },
+        "type": "object",
+        "title": "predict_ws_output"
+      }
+    },
+    "securitySchemes": {
+      "OAuth2PasswordBearer": {
+        "type": "oauth2",
+        "flows": {
+          "password": {
+            "scopes": {},
+            "tokenUrl": "token"
+          }
+        }
+      }
+    }
+  }
+}
