@@ -1,5 +1,11 @@
+from jose import jwt
 from typing import List
 
+# Your secret key used to sign the JWT tokens (should match the one in your app)
+SECRET_KEY = "your_secret_key"
+
+# Algorithm used to sign the JWT tokens (should match the one in your app)
+ALGORITHM = "HS256"
 
 def info_from_OAuth2PasswordBearer(token):
     """
@@ -13,8 +19,11 @@ def info_from_OAuth2PasswordBearer(token):
     :return: Decoded token information or None if token is invalid
     :rtype: dict | None
     """
-    return {'scopes': ['read:pets', 'write:pets'], 'uid': 'user_id'}
-
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return {"scopes": payload.get("scopes", []), "uid": payload.get("sub")}
+    except jwt.JWTError:
+        return None
 
 def validate_scope_OAuth2PasswordBearer(required_scopes, token_scopes):
     """
