@@ -1,13 +1,11 @@
-openapi: 3.1.0
+openapi: 3.0.0
 info:
   title: Wine Observer
   version: 0.1.0
-servers:
-- url: /
 paths:
   /items/:
     get:
-      operationId: read_items_items__get
+      operationId: read_items_items_get
       responses:
         "200":
           content:
@@ -42,7 +40,7 @@ paths:
           description: Validation Error
       summary: Predict
       x-openapi-router-controller: openapi_server.controllers.default_controller
-  /token:
+  /ui/token:
     post:
       operationId: login_for_access_token_token_post
       requestBody:
@@ -65,10 +63,10 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
           description: Validation Error
       summary: Login For Access Token
-      x-openapi-router-controller: openapi_server.controllers.default_controller
+      x-openapi-router-controller: openapi_server.controllers.security_controller
   /users/me/:
     get:
-      operationId: read_users_me_users_me__get
+      operationId: read_users_me_users_me_get
       responses:
         "200":
           content:
@@ -82,7 +80,7 @@ paths:
       x-openapi-router-controller: openapi_server.controllers.default_controller
   /users/me/items/:
     get:
-      operationId: read_own_items_users_me_items__get
+      operationId: read_own_items_users_me_items_get
       responses:
         "200":
           content:
@@ -239,5 +237,5 @@ components:
           scopes: {}
           tokenUrl: token
       type: oauth2
-      x-tokenInfoFunc: openapi_server.controllers.security_controller_.info_from_OAuth2PasswordBearer
-      x-scopeValidateFunc: openapi_server.controllers.security_controller_.validate_scope_OAuth2PasswordBearer
+      x-tokenInfoFunc: openapi_server.controllers.security_controller.info_from_OAuth2PasswordBearer
+      x-scopeValidateFunc: openapi_server.controllers.security_controller.validate_scope_OAuth2PasswordBearer
