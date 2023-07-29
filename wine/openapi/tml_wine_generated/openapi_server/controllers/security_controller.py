@@ -137,7 +137,6 @@ def login_for_access_token_token_post(body):  # noqa: E501
     """
     Login For Access Token
     """
-    print("login_for_access_token_token_post")
     grant_type = next(iter(body["grant_type"]))
     client_id = body.get("client_id", "")
     client_secret = body.get("client_secret", "")

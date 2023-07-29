@@ -15,7 +15,7 @@ paths:
       security:
       - OAuth2PasswordBearer: []
       summary: Read Items
-      x-openapi-router-controller: openapi_server.controllers.users_controller
+      x-openapi-router-controller: openapi_server.controllers.items_controller
   /predict:
     post:
       operationId: predict_predict_post
@@ -39,6 +39,8 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
           description: Validation Error
       summary: Predict
+      security:
+        - OAuth2PasswordBearer: [ ]
       x-openapi-router-controller: openapi_server.controllers.default_controller
   /ui/token:
     post:
@@ -90,7 +92,7 @@ paths:
       security:
       - OAuth2PasswordBearer: []
       summary: Read Own Items
-      x-openapi-router-controller: openapi_server.controllers.users_controller
+      x-openapi-router-controller: openapi_server.controllers.items_controller
 components:
   schemas:
     Body_login_for_access_token_token_post:

@@ -1,33 +1,28 @@
-import logging
-
 import connexion
-import six
-from typing import Dict
-from typing import Tuple
-from typing import Union
-from datetime import datetime, timedelta
-from openapi_server.models.http_validation_error import HTTPValidationError  # noqa: E501
+import pandas as pd
+
 from openapi_server.models.predict_ws_input import PredictWsInput  # noqa: E501
 from openapi_server.models.predict_ws_output import PredictWsOutput  # noqa: E501
-from openapi_server.models.token import Token  # noqa: E501
-from openapi_server.models.user import User  # noqa: E501
-from openapi_server import util
+from tml_wine.models.models import virtual_ws_meta, virtual_ws_other, virtual_ws_ensemble
+from tml_wine.predict_ws_inference import predictors, other_ratings, model_columns, pdesire, wdesire, composite
 
 
-
-
-def predict_predict_post(predict_ws_input):  # noqa: E501
-    """Predict
-
-     # noqa: E501
-
-    :param predict_ws_input: 
-    :type predict_ws_input: dict | bytes
-
-    :rtype: Union[PredictWsOutput, Tuple[PredictWsOutput, int], Tuple[PredictWsOutput, int, Dict[str, str]]
+def predict_predict_post(body):  # noqa: E501
     """
-    if connexion.request.is_json:
-        predict_ws_input = PredictWsInput.from_dict(connexion.request.get_json())  # noqa: E501
-    return 'do some magic!'
-
-
+    Predict
+    """
+    print(f"body={body}")
+    request = connexion.request.get_json()
+    PredictWsInput.from_dict(request)  # data validation
+    df = pd.DataFrame([request])
+    df["ws_pred_meta"] = virtual_ws_meta.predict(df[predictors])
+    df["ws_pred_other"] = virtual_ws_other.predict(df[other_ratings])
+    df["ws_pred"] = virtual_ws_ensemble.predict(df[model_columns])
+    df["price_desire"] = df["price"].apply(pdesire)
+    df["ws_pred_desire"] = df["ws_pred"].apply(wdesire)
+    df["composite_desire"] = composite(df["price_desire"], df["ws_pred_desire"])
+    predict_ws_output = PredictWsOutput.from_dict({
+        "ws_pred": df["ws_pred"].round(4).iloc[0],
+        "composite_desire": df["composite_desire"].round(4).iloc[0]
+    })
+    return predict_ws_output
