@@ -1,7 +1,7 @@
 from openapi_server.controllers.security_controller import fake_users_db
 
 
-def read_items_items_get(body):  # noqa: E501
+def read_items_items_get(user, token_info):  # noqa: E501
     """Read Items
 
      # noqa: E501
@@ -9,10 +9,11 @@ def read_items_items_get(body):  # noqa: E501
 
     :rtype: Union[object, Tuple[object, int], Tuple[object, int, Dict[str, str]]
     """
-    return body
+
+    return token_info
 
 
-def read_own_items_users_me_items_get(body):  # noqa: E501
+def read_own_items_users_me_items_get(user, token_info):  # noqa: E501
     """Read Own Items
 
      # noqa: E501
@@ -20,7 +21,8 @@ def read_own_items_users_me_items_get(body):  # noqa: E501
 
     :rtype: Union[object, Tuple[object, int], Tuple[object, int, Dict[str, str]]
     """
-    return body
+
+    return token_info
 
 
 def read_users_me_users_me_get(user, token_info):  # noqa: E501
