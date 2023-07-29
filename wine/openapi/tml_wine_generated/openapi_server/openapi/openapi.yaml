@@ -15,7 +15,7 @@ paths:
       security:
       - OAuth2PasswordBearer: []
       summary: Read Items
-      x-openapi-router-controller: openapi_server.controllers.default_controller
+      x-openapi-router-controller: openapi_server.controllers.users_controller
   /predict:
     post:
       operationId: predict_predict_post
@@ -77,7 +77,7 @@ paths:
       security:
       - OAuth2PasswordBearer: []
       summary: Read Users Me
-      x-openapi-router-controller: openapi_server.controllers.default_controller
+      x-openapi-router-controller: openapi_server.controllers.users_controller
   /users/me/items/:
     get:
       operationId: read_own_items_users_me_items_get
@@ -90,7 +90,7 @@ paths:
       security:
       - OAuth2PasswordBearer: []
       summary: Read Own Items
-      x-openapi-router-controller: openapi_server.controllers.default_controller
+      x-openapi-router-controller: openapi_server.controllers.users_controller
 components:
   schemas:
     Body_login_for_access_token_token_post:
@@ -237,5 +237,5 @@ components:
           scopes: {}
           tokenUrl: token
       type: oauth2
-      x-tokenInfoFunc: openapi_server.controllers.security_controller.info_from_OAuth2PasswordBearer
-      x-scopeValidateFunc: openapi_server.controllers.security_controller.validate_scope_OAuth2PasswordBearer
+      x-tokenInfoFunc: openapi_server.controllers.security_controller.info_from_oauth2_password_bearer
+      x-scopeValidateFunc: openapi_server.controllers.security_controller.validate_scope_oauth2_password_bearer
