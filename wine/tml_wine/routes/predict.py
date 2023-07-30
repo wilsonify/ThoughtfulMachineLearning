@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 from pydantic import create_model
 
 from tml_wine.main import app
-from tml_wine.models.models import virtual_ws_meta, virtual_ws_other, virtual_ws_ensemble
+from tml_wine.models import virtual_ws_meta, virtual_ws_other, virtual_ws_ensemble
 from tml_wine.predict_ws_inference import predictors, other_ratings, model_columns, pdesire, wdesire, composite
 
 dir(BaseModel)
