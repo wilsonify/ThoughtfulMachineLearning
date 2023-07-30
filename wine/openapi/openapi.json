@@ -279,79 +279,139 @@
       "predict_ws_input": {
         "properties": {
           "productStock": {
-            "type": "number",
+            "items": {},
+            "type": "array",
             "title": "Productstock",
-            "default": 22.0
+            "default": [
+              22.0,
+              22.0
+            ]
           },
           "price": {
-            "type": "number",
+            "items": {},
+            "type": "array",
             "title": "Price",
-            "default": 79.98999786376953
+            "default": [
+              79.99,
+              79.99
+            ]
           },
           "prodAlcoholPercent_percent": {
-            "type": "number",
+            "items": {},
+            "type": "array",
             "title": "Prodalcoholpercent Percent",
-            "default": 14.5
+            "default": [
+              14.5,
+              14.5
+            ]
           },
           "JS": {
-            "type": "number",
+            "items": {},
+            "type": "array",
             "title": "Js",
-            "default": 93.0
+            "default": [
+              93.0,
+              93.0
+            ]
           },
           "WW": {
-            "type": "number",
+            "items": {},
+            "type": "array",
             "title": "Ww",
-            "default": 93.0
+            "default": [
+              93.0,
+              93.0
+            ]
           },
           "D": {
-            "type": "number",
+            "items": {},
+            "type": "array",
             "title": "D",
-            "default": 93.0
+            "default": [
+              93.0,
+              93.0
+            ]
           },
           "BH": {
-            "type": "number",
+            "items": {},
+            "type": "array",
             "title": "Bh",
-            "default": 93.0
+            "default": [
+              93.0,
+              93.0
+            ]
           },
           "W&S": {
-            "type": "number",
+            "items": {},
+            "type": "array",
             "title": "W&S",
-            "default": 93.0
+            "default": [
+              93.0,
+              93.0
+            ]
           },
           "WE": {
-            "type": "number",
+            "items": {},
+            "type": "array",
             "title": "We",
-            "default": 93.0
+            "default": [
+              93.0,
+              93.0
+            ]
           },
           "RP": {
-            "type": "number",
+            "items": {},
+            "type": "array",
             "title": "Rp",
-            "default": 92.0
+            "default": [
+              92.0,
+              92.0
+            ]
           },
           "JD": {
-            "type": "number",
+            "items": {},
+            "type": "array",
             "title": "Jd",
-            "default": 93.0
+            "default": [
+              93.0,
+              93.0
+            ]
           },
           "SJ": {
-            "type": "number",
+            "items": {},
+            "type": "array",
             "title": "Sj",
-            "default": 93.0
+            "default": [
+              93.0,
+              93.0
+            ]
           },
           "V": {
-            "type": "number",
+            "items": {},
+            "type": "array",
             "title": "V",
-            "default": 93.0
+            "default": [
+              93.0,
+              93.0
+            ]
           },
           "CG": {
-            "type": "number",
+            "items": {},
+            "type": "array",
             "title": "Cg",
-            "default": 93.0
+            "default": [
+              93.0,
+              93.0
+            ]
           },
           "TP": {
-            "type": "number",
+            "items": {},
+            "type": "array",
             "title": "Tp",
-            "default": 93.0
+            "default": [
+              93.0,
+              93.0
+            ]
           }
         },
         "type": "object",
@@ -360,14 +420,22 @@
       "predict_ws_output": {
         "properties": {
           "ws_pred": {
-            "type": "number",
+            "items": {},
+            "type": "array",
             "title": "Ws Pred",
-            "default": 90.0
+            "default": [
+              90.0,
+              90.0
+            ]
           },
           "composite_desire": {
-            "type": "number",
+            "items": {},
+            "type": "array",
             "title": "Composite Desire",
-            "default": 100.0
+            "default": [
+              100.0,
+              100.0
+            ]
           }
         },
         "type": "object",
