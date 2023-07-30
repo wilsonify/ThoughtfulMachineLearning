@@ -16,22 +16,23 @@ build_dir:
 build/version.txt: build_dir
 	$(call ver_file, $@)
 
-build/base: build/version.txt
+build/base.txt: build/version.txt
 	docker build --progress plain -f Dockerfile-base -t tml-wine-base:latest . && $(call ver_file, $@)
 
-build/builder: build/base
+build/builder.txt: build/base.txt
 	docker build --progress plain -f Dockerfile-builder -t tml-wine-builder:latest . && $(call ver_file, $@)
 
-build/buildest: build/builder
+build/buildest.txt: #build/builder.txt
 	docker build --progress plain -f Dockerfile-buildest -t tml-wine-buildest:latest . && $(call ver_file, $@)
 
-build/image: build/buildest
+build/image.txt: #build/buildest.txt
 	docker build --progress plain -f Dockerfile -t tml-wine:latest . && $(call ver_file, $@)
 
-run: build/image
+run:
 	docker run --rm --name tml-wine -p 32774:8000 tml-wine:latest
 
 dist:
+	docker rm tml-wine-tmp || true
 	docker create --name tml-wine-tmp tml-wine:latest
-	docker cp tml-wine:/app/dist .
-	docker rm tml-wine-tmp
+	docker cp tml-wine-tmp:/app/dist .
+	docker rm tml-wine-tmp || true

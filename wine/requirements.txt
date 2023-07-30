@@ -4,6 +4,7 @@ fastapi~=0.99.1
 uvicorn~=0.22.0
 cython~=0.29.35
 pyinstaller~=5.13.0
+pyinstaller-hooks-contrib~=2023.6
 typing_extensions~=4.7.1
 pandas~=1.5.1
 scikit-learn~=1.1.3
