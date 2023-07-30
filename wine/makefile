@@ -22,10 +22,10 @@ build/base.txt: build/version.txt
 build/builder.txt: build/base.txt
 	docker build --progress plain -f Dockerfile-builder -t tml-wine-builder:latest . && $(call ver_file, $@)
 
-build/buildest.txt: #build/builder.txt
+build/buildest.txt: build/builder.txt
 	docker build --progress plain -f Dockerfile-buildest -t tml-wine-buildest:latest . && $(call ver_file, $@)
 
-build/image.txt: #build/buildest.txt
+build/image.txt: build/builder.txt
 	docker build --progress plain -f Dockerfile -t tml-wine:latest . && $(call ver_file, $@)
 
 run:
