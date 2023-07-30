@@ -60,7 +60,8 @@
       "type": "object",
       "required": ["access_token", "token_type"],
       "title": "Token",
-      "description": "Model representing the access token."
+      "description": "Model representing the access token.",
+      "example": { "$ref": "#/examples/Token" }
     },
     "User": {
       "properties": {
@@ -84,7 +85,8 @@
       "type": "object",
       "required": ["username"],
       "title": "User",
-      "description": "Model representing the user data."
+      "description": "Model representing the user data.",
+      "example": { "$ref": "#/examples/User" }
     },
     "ValidationError": {
       "properties": {
@@ -116,20 +118,10 @@
       "title": "ValidationError"
     },
     "predict_ws_input": {
-      "properties": {
-        "productStock": {
-          "items": {},
-          "type": "array",
-          "title": "Productstock",
-          "default": [22.0, 22.0]
-        },
-        "price": {
-          "items": {},
-          "type": "array",
-          "title": "Price",
-          "default": [79.99, 79.99]
-        },
-        "prodAlcoholPercent_percent": {
-          "items": {},
-          "type": "array",
-          "
+      "$ref": "#/examples/predict_ws_input"
+    },
+    "predict_ws_output": {
+      "$ref": "#/examples/predict_ws_output"
+    }
+  }
+}
