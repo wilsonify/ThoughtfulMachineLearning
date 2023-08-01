@@ -1,0 +1,23 @@
+post:
+  operationId: login_for_access_token_token_post
+  requestBody:
+    content:
+      application/x-www-form-urlencoded:
+        schema:
+          $ref: 'Body_login_for_access_token_token_post.yaml'
+    required: true
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            $ref: 'Token.yaml'
+      description: Successful Response
+    "422":
+      content:
+        application/json:
+          schema:
+            $ref: 'HTTPValidationError.yaml'
+      description: Validation Error
+  summary: Login For Access Token
+  x-openapi-router-controller: openapi_server.controllers.security_controller

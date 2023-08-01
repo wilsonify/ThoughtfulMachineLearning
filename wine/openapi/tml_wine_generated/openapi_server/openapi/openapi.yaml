@@ -2,242 +2,31 @@ openapi: 3.0.0
 info:
   title: Wine Observer
   version: 0.1.0
+
 paths:
   /items/:
-    get:
-      operationId: read_items_items_get
-      responses:
-        "200":
-          content:
-            application/json:
-              schema: {}
-          description: Successful Response
-      security:
-      - OAuth2PasswordBearer: []
-      summary: Read Items
-      x-openapi-router-controller: openapi_server.controllers.items_controller
+    $ref: "paths/items/items.yaml"
   /predict:
-    post:
-      operationId: predict_predict_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/predict_ws_input'
-        required: true
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/predict_ws_output'
-          description: Successful Response
-        "422":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-          description: Validation Error
-      summary: Predict
-      security:
-        - OAuth2PasswordBearer: [ ]
-      x-openapi-router-controller: openapi_server.controllers.default_controller
+    $ref: "paths/predict/predict.yaml"
   /ui/token:
-    post:
-      operationId: login_for_access_token_token_post
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Body_login_for_access_token_token_post'
-        required: true
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Token'
-          description: Successful Response
-        "422":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-          description: Validation Error
-      summary: Login For Access Token
-      x-openapi-router-controller: openapi_server.controllers.security_controller
+    $ref: "paths/token/token.yaml"
   /users/me/:
-    get:
-      operationId: read_users_me_users_me_get
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-          description: Successful Response
-      security:
-      - OAuth2PasswordBearer: []
-      summary: Read Users Me
-      x-openapi-router-controller: openapi_server.controllers.users_controller
+    $ref: "paths/users/me/me.yaml"
   /users/me/items/:
-    get:
-      operationId: read_own_items_users_me_items_get
-      responses:
-        "200":
-          content:
-            application/json:
-              schema: {}
-          description: Successful Response
-      security:
-      - OAuth2PasswordBearer: []
-      summary: Read Own Items
-      x-openapi-router-controller: openapi_server.controllers.items_controller
+    $ref: "paths/users/me/items/items.yaml"
+
 components:
   schemas:
     Body_login_for_access_token_token_post:
-      properties:
-        grant_type:
-          pattern: password
-          title: Grant Type
-        username:
-          title: Username
-        password:
-          title: Password
-        scope:
-          default: ""
-          title: Scope
-        client_id:
-          title: Client Id
-        client_secret:
-          title: Client Secret
-      required:
-      - password
-      - username
-      title: Body_login_for_access_token_token_post
+      $ref: "components/schemas/Body_login_for_access_token_token_post.yaml"
     HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          title: Detail
-      title: HTTPValidationError
+      $ref: "components/schemas/HTTPValidationError.yaml"
     Token:
-      description: Model representing the access token.
-      example:
-        access_token: ""
-        token_type: ""
-      properties:
-        access_token:
-          title: Access Token
-        token_type:
-          title: Token Type
-      required:
-      - access_token
-      - token_type
-      title: Token
+      $ref: "components/schemas/Token.yaml"
     User:
-      description: Model representing the user data.
-      example:
-        full_name: ""
-        disabled: ""
-        email: ""
-        username: ""
-      properties:
-        username:
-          title: Username
-        email:
-          title: Email
-        full_name:
-          title: Full Name
-        disabled:
-          title: Disabled
-      required:
-      - username
-      title: User
+      $ref: "components/schemas/User.yaml"
     ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - {}
-            - {}
-          title: Location
-        msg:
-          title: Message
-        type:
-          title: Error Type
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    predict_ws_input:
-      properties:
-        productStock:
-          default: 22.0
-          title: Productstock
-        price:
-          default: 79.98999786376953
-          title: Price
-        prodAlcoholPercent_percent:
-          default: 14.5
-          title: Prodalcoholpercent Percent
-        JS:
-          default: 93.0
-          title: Js
-        WW:
-          default: 93.0
-          title: Ww
-        D:
-          default: 93.0
-          title: D
-        BH:
-          default: 93.0
-          title: Bh
-        W&S:
-          default: 93.0
-          title: W&S
-        WE:
-          default: 93.0
-          title: We
-        RP:
-          default: 92.0
-          title: Rp
-        JD:
-          default: 93.0
-          title: Jd
-        SJ:
-          default: 93.0
-          title: Sj
-        V:
-          default: 93.0
-          title: V
-        CG:
-          default: 93.0
-          title: Cg
-        TP:
-          default: 93.0
-          title: Tp
-      title: predict_ws_input
-    predict_ws_output:
-      example:
-        composite_desire: ""
-        ws_pred: ""
-      properties:
-        ws_pred:
-          default: 90.0
-          title: Ws Pred
-        composite_desire:
-          default: 100.0
-          title: Composite Desire
-      title: predict_ws_output
+      $ref: "components/schemas/ValidationError.yaml"
   securitySchemes:
     OAuth2PasswordBearer:
-      flows:
-        password:
-          scopes: {}
-          tokenUrl: token
-      type: oauth2
-      x-tokenInfoFunc: openapi_server.controllers.security_controller.info_from_oauth2_password_bearer
-      x-scopeValidateFunc: openapi_server.controllers.security_controller.validate_scope_oauth2_password_bearer
+      $ref: "components/securitySchemes/OAuth2PasswordBearer.yaml"

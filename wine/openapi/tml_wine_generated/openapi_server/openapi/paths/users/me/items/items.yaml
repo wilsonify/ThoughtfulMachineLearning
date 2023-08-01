@@ -1,0 +1,12 @@
+get:
+  operationId: read_own_items_users_me_items_get
+  responses:
+    "200":
+      content:
+        application/json:
+          schema: { }
+      description: Successful Response
+  security:
+    - OAuth2PasswordBearer: [ ]
+  summary: Read Own Items
+  x-openapi-router-controller: openapi_server.controllers.items_controller

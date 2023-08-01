@@ -1,0 +1,13 @@
+get:
+  operationId: read_users_me_users_me_get
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            $ref: 'User.yaml'
+      description: Successful Response
+  security:
+    - OAuth2PasswordBearer: [ ]
+  summary: Read Users Me
+  x-openapi-router-controller: openapi_server.controllers.users_controller

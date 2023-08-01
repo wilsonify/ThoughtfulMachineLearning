@@ -1,0 +1,13 @@
+description: Model representing the access token.
+example:
+  access_token: ""
+  token_type: ""
+properties:
+  access_token:
+    title: Access Token
+  token_type:
+    title: Token Type
+required:
+  - access_token
+  - token_type
+title: Token

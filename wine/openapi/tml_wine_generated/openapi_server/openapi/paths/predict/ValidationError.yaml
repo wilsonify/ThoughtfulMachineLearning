@@ -1,0 +1,16 @@
+properties:
+  loc:
+    items:
+      anyOf:
+        - { }
+        - { }
+    title: Location
+  msg:
+    title: Message
+  type:
+    title: Error Type
+required:
+  - loc
+  - msg
+  - type
+title: ValidationError

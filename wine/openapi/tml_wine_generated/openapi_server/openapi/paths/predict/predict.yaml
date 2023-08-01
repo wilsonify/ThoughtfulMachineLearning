@@ -1,0 +1,25 @@
+post:
+  operationId: predict_predict_post
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: "predict_ws_input.yaml"
+    required: true
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            $ref: "predict_ws_output.yaml"
+      description: Successful Response
+    "422":
+      content:
+        application/json:
+          schema:
+            $ref: 'HTTPValidationError.yaml'
+      description: Validation Error
+  summary: Predict
+  security:
+    - OAuth2PasswordBearer: [ ]
+  x-openapi-router-controller: openapi_server.controllers.default_controller

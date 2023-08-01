@@ -1,0 +1,47 @@
+      properties:
+        productStock:
+          default: 22.0
+          title: Productstock
+        price:
+          default: 79.98999786376953
+          title: Price
+        prodAlcoholPercent_percent:
+          default: 14.5
+          title: Prodalcoholpercent Percent
+        JS:
+          default: 93.0
+          title: Js
+        WW:
+          default: 93.0
+          title: Ww
+        D:
+          default: 93.0
+          title: D
+        BH:
+          default: 93.0
+          title: Bh
+        W&S:
+          default: 93.0
+          title: W&S
+        WE:
+          default: 93.0
+          title: We
+        RP:
+          default: 92.0
+          title: Rp
+        JD:
+          default: 93.0
+          title: Jd
+        SJ:
+          default: 93.0
+          title: Sj
+        V:
+          default: 93.0
+          title: V
+        CG:
+          default: 93.0
+          title: Cg
+        TP:
+          default: 93.0
+          title: Tp
+      title: predict_ws_input

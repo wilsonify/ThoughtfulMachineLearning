@@ -1,0 +1,6 @@
+properties:
+  detail:
+    items:
+      $ref: 'ValidationError.yaml'
+    title: Detail
+title: HTTPValidationError

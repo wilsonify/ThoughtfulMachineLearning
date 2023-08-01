@@ -1,0 +1,19 @@
+properties:
+  grant_type:
+    pattern: password
+    title: Grant Type
+  username:
+    title: Username
+  password:
+    title: Password
+  scope:
+    default: ""
+    title: Scope
+  client_id:
+    title: Client Id
+  client_secret:
+    title: Client Secret
+required:
+  - password
+  - username
+title: Body_login_for_access_token_token_post

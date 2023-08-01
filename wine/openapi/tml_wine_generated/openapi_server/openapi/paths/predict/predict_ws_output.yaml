@@ -1,0 +1,11 @@
+      example:
+        composite_desire: ""
+        ws_pred: ""
+      properties:
+        ws_pred:
+          default: 90.0
+          title: Ws Pred
+        composite_desire:
+          default: 100.0
+          title: Composite Desire
+      title: predict_ws_output

@@ -1,0 +1,18 @@
+description: Model representing the user data.
+example:
+  full_name: ""
+  disabled: ""
+  email: ""
+  username: ""
+properties:
+  username:
+    title: Username
+  email:
+    title: Email
+  full_name:
+    title: Full Name
+  disabled:
+    title: Disabled
+required:
+  - username
+title: User
