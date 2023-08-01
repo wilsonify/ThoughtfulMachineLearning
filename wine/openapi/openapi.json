@@ -6,5 +6,4 @@
   },
   "paths": { "$ref": "paths.json" },
   "components": { "$ref": "components.json" },
-  "examples": { "$ref": "examples.json" }
 }
