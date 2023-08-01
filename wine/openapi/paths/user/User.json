@@ -1,0 +1,29 @@
+{
+  "properties": {
+    "username": {
+      "type": "string",
+      "title": "Username"
+    },
+    "email": {
+      "type": "string",
+      "title": "Email"
+    },
+    "full_name": {
+      "type": "string",
+      "title": "Full Name"
+    },
+    "disabled": {
+      "type": "boolean",
+      "title": "Disabled"
+    }
+  },
+  "type": "object",
+  "required": [
+    "username"
+  ],
+  "title": "User",
+  "description": "Model representing the user data.",
+  "example": {
+    "$ref": "user.json"
+  }
+}

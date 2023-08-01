@@ -1,0 +1,23 @@
+{
+    "get": {
+      "summary": "Read Users Me",
+      "operationId": "read_users_me_users_me__get",
+      "responses": {
+        "200": {
+          "description": "Successful Response",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "User.json"
+              }
+            }
+          }
+        }
+      },
+      "security": [
+        {
+          "OAuth2PasswordBearer": []
+        }
+      ]
+    }
+  }

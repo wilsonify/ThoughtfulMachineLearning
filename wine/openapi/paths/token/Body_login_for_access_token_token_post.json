@@ -1,0 +1,36 @@
+{
+  "properties": {
+    "grant_type": {
+      "type": "string",
+      "pattern": "password",
+      "title": "Grant Type"
+    },
+    "username": {
+      "type": "string",
+      "title": "Username"
+    },
+    "password": {
+      "type": "string",
+      "title": "Password"
+    },
+    "scope": {
+      "type": "string",
+      "title": "Scope",
+      "default": ""
+    },
+    "client_id": {
+      "type": "string",
+      "title": "Client Id"
+    },
+    "client_secret": {
+      "type": "string",
+      "title": "Client Secret"
+    }
+  },
+  "type": "object",
+  "required": [
+    "username",
+    "password"
+  ],
+  "title": "Body_login_for_access_token_token_post"
+}

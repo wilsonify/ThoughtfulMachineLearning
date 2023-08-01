@@ -1,0 +1,21 @@
+{
+  "get": {
+    "summary": "Read Own Items",
+    "operationId": "read_own_items_users_me_items__get",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {}
+          }
+        }
+      }
+    },
+    "security": [
+      {
+        "OAuth2PasswordBearer": []
+      }
+    ]
+  }
+}

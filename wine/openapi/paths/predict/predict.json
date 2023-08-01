@@ -1,12 +1,12 @@
 {
   "post": {
-    "summary": "Login For Access Token",
-    "operationId": "login_for_access_token_token_post",
+    "summary": "Predict",
+    "operationId": "predict_predict_post",
     "requestBody": {
       "content": {
-        "application/x-www-form-urlencoded": {
+        "application/json": {
           "schema": {
-            "$ref": "Body_login_for_access_token_token_post.json"
+            "$ref": "predict_ws_input.json"
           }
         }
       },
@@ -18,7 +18,7 @@
         "content": {
           "application/json": {
             "schema": {
-              "$ref": "Token.json"
+              "$ref": "predict_ws_output.json"
             }
           }
         }

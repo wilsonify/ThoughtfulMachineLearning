@@ -4,6 +4,21 @@
     "title": "Wine Observer",
     "version": "0.1.0"
   },
-  "paths": { "$ref": "paths.json" },
-  "components": { "$ref": "components.json" },
+  "paths": {
+    "/items/": {
+      "$ref": "paths/items.json"
+    },
+    "/predict": {
+      "$ref": "paths/predict.json"
+    },
+    "/token": {
+      "$ref": "paths/token.json"
+    },
+    "/users/me/": {
+      "$ref": "paths/user/me.json"
+    },
+    "/users/me/items/": {
+      "$ref": "paths/user/me.json"
+    }
+  }
 }
