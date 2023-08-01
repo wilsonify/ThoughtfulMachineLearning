@@ -6,19 +6,19 @@
   },
   "paths": {
     "/items/": {
-      "$ref": "paths/items.json"
+      "$ref": "paths/items/items.json"
     },
     "/predict": {
-      "$ref": "paths/predict.json"
+      "$ref": "paths/predict/predict.json"
     },
     "/token": {
-      "$ref": "paths/token.json"
+      "$ref": "paths/token/token.json"
     },
     "/users/me/": {
       "$ref": "paths/user/me.json"
     },
     "/users/me/items/": {
-      "$ref": "paths/user/me.json"
+      "$ref": "paths/user/items.json"
     }
   }
 }
