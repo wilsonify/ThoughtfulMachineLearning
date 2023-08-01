@@ -1,0 +1,5 @@
+outs:
+- md5: b6d076742a21eb066f86c5f404cf0288
+  size: 1107382
+  hash: md5
+  path: wine_spectator.csv
