@@ -1,9 +1,11 @@
+import os
+
 import connexion
 import pandas as pd
+from pycaret.regression import load_model
 
 from openapi_server.models.predict_ws_input import PredictWsInput  # noqa: E501
 from openapi_server.models.predict_ws_output import PredictWsOutput  # noqa: E501
-from tml_wine.models import virtual_ws_meta, virtual_ws_other, virtual_ws_ensemble
 from tml_wine.predict_ws_inference import predictors, other_ratings, model_columns, pdesire, wdesire, composite
 
 
@@ -11,6 +13,15 @@ def predict_predict_post(body):  # noqa: E501
     """
     Predict
     """
+
+    path_to_here = os.path.abspath(os.path.dirname(__file__))
+    path_to_models = f"{path_to_here}"
+
+    # Load the Models
+    virtual_ws_meta = load_model(f"{path_to_models}/predict_ws_from_meta/best-model")
+    virtual_ws_other = load_model(f"{path_to_models}/predict_ws_from_other/best-model-other")
+    virtual_ws_ensemble = load_model(f"{path_to_models}/ensemble/best-model-ensemble")
+
     print(f"body={body}")
     request = connexion.request.get_json()
     PredictWsInput.from_dict(request)  # data validation
