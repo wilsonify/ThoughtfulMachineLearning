@@ -1,0 +1,147 @@
+import math
+import time
+
+import bs4
+import pandas as pd
+import requests
+
+result_filename = "gpu_spectator.csv"
+pd.options.plotting.backend = "plotly"
+
+baseurl = "https://www.bestbuy.com/site/searchpage.jsp"
+query_str = "?af=false&id=pcat17071&qp=category_facet%3DGPUs%20%2F%20Video%20Graphics%20Cards~abcat0507002&sp=%2Bcurrentprice%20skuidsaas&st=gpu"
+columns_in_order = []
+
+resp = requests.get(f"{baseurl}{query_str}", headers={"User-Agent": "Mozilla/5.0"}, timeout=100)
+soup = bs4.BeautifulSoup(resp.text, features="lxml")
+
+total_items = soup.find("div", class_="left-side").text  # .strip(" Items").replace(",", "")
+total_items
+
+total_items = soup.find("span", class_="countItems").text.strip(" Items").replace(",", "")
+total_items = int(total_items)
+total_pages = math.floor(total_items / 25.0)
+count = 0
+for i in range(1, total_pages + 1):
+    time.sleep(0.5)
+    url = f"{baseurl}/{i}"
+    print(url)
+    print(f"{i}/{total_pages} = {i / total_pages:0.2f}")
+    resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=100)
+    soup = bs4.BeautifulSoup(resp.text, features="lxml")
+    for x in soup.find_all(attrs={"class": ["listGridItemName"]}):
+        data = {}
+        count += 1
+        wine_url = "https://www.wine.com/product" + x.attrs["href"]
+        data[f"w{count:00002d}"] = {}
+        data[f"w{count:00002d}"]["search_url"] = url
+        data[f"w{count:00002d}"]["wine_url"] = wine_url
+        time.sleep(0.1)
+        try:
+            wine_resp = requests.get(wine_url, headers={"User-Agent": "Mozilla/5.0"}, timeout=100)
+            print(f"got wine_url={wine_url}")
+        except:
+            print(f"failed to get wine_url={wine_url}")
+            continue
+        wine_soup = bs4.BeautifulSoup(wine_resp.text, features="lxml")
+        extract_meta(count, data, wine_soup)
+        extract_prodAlcoholVolume(count, data, wine_soup)
+        extract_prodAlcoholPercent(count, data, wine_soup)
+        extract_ratings(count, data, wine_soup)
+        save_progress(data, result_filename)
+
+
+def main():
+    save_initial({})
+    resp = requests.get(baseurl, headers={"User-Agent": "Mozilla/5.0"}, timeout=100)
+    soup = bs4.BeautifulSoup(resp.text, features="lxml")
+    total_items = soup.find("span", class_="countItems").text.strip(" Items").replace(",", "")
+    total_items = int(total_items)
+    total_pages = math.floor(total_items / 25.0)
+    count = 0
+    for i in range(1, total_pages + 1):
+        time.sleep(0.5)
+        url = f"{baseurl}/{i}"
+        print(url)
+        print(f"{i}/{total_pages} = {i / total_pages:0.2f}")
+        resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=100)
+        soup = bs4.BeautifulSoup(resp.text, features="lxml")
+        for x in soup.find_all(attrs={"class": ["listGridItemName"]}):
+            data = {}
+            count += 1
+            wine_url = "https://www.wine.com/product" + x.attrs["href"]
+            data[f"w{count:00002d}"] = {}
+            data[f"w{count:00002d}"]["search_url"] = url
+            data[f"w{count:00002d}"]["wine_url"] = wine_url
+            time.sleep(0.1)
+            try:
+                wine_resp = requests.get(wine_url, headers={"User-Agent": "Mozilla/5.0"}, timeout=100)
+                print(f"got wine_url={wine_url}")
+            except:
+                print(f"failed to get wine_url={wine_url}")
+                continue
+            wine_soup = bs4.BeautifulSoup(wine_resp.text, features="lxml")
+            extract_meta(count, data, wine_soup)
+            extract_prodAlcoholVolume(count, data, wine_soup)
+            extract_prodAlcoholPercent(count, data, wine_soup)
+            extract_ratings(count, data, wine_soup)
+            save_progress(data, result_filename)
+
+
+def save_progress(data, filename):
+    result = pd.DataFrame.from_dict(data, orient="index", columns=columns_in_order)
+    ensure_dtypes(result)
+    result[columns_in_order].to_csv(filename, mode='a', header=False)
+
+
+def save_initial(data):
+    result = pd.DataFrame.from_dict(data, orient="index", columns=columns_in_order)
+    ensure_dtypes(result)
+    result[columns_in_order].to_csv(result_filename)
+
+
+def ensure_dtypes(result):
+    result["price"] = pd.to_numeric(result["price"])
+    result["WS"] = pd.to_numeric(result["WS"])
+    result["JS"] = pd.to_numeric(result["JS"])
+
+
+def extract_ratings(count, data, wine_soup):
+    for n, z in enumerate(wine_soup.find_all(attrs={"class": ["wineRatings_list"]})):
+        ratings_list = z.find_all("li", class_="wineRatings_listItem")
+        for rating in ratings_list:
+            initials = rating.find("span", class_="wineRatings_initials").text
+            rating_value = rating.find("span", class_="wineRatings_rating").text
+            data[f"w{count:00002d}"][initials] = rating_value
+
+
+def extract_prodAlcoholPercent(count, data, wine_soup):
+    for n, b in enumerate(wine_soup.find_all(attrs={"class": ["prodAlcoholPercent_inner"]})):
+        percent_element = b.find("span", class_="prodAlcoholPercent_percent")
+        data[f"w{count:00002d}"][
+            "prodAlcoholPercent_percent"
+        ] = percent_element.text.strip()
+
+
+def extract_prodAlcoholVolume(count, data, wine_soup):
+    for n, b in enumerate(wine_soup.find_all(attrs={"class": ["prodAlcoholVolume"]})):
+        for c in b.find_all("span", class_="prodAlcoholVolume_text"):
+            data[f"w{count:00002d}"]["prodAlcoholVolume_text"] = c.contents[0]
+
+
+def extract_meta(count, data, wine_soup):
+    for y in wine_soup.find_all(name="meta"):
+        if "content" in y.attrs:
+            v = y.attrs["content"]
+            try:
+                k = y.attrs["name"]
+            except:
+                try:
+                    k = y.attrs["itemprop"]
+                except:
+                    k = y.attrs["class"][0]
+            data[f"w{count:00002d}"][k] = v
+
+
+if __name__ == "__main__":
+    main()
