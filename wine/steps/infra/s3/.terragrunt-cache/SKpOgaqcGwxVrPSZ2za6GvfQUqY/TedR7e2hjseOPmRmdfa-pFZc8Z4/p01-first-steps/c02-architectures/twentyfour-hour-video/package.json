@@ -1,0 +1,28 @@
+{
+  "name": "twentyfour-hour-video",
+  "version": "1.0.0",
+  "description": "listen for new videos, create mediaConvert jobs",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "test/upload.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wilsonify/serverless-architectures-aws.git"
+  },
+  "keywords": [
+    "serverless"
+  ],
+  "author": "Tom Wilson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wilsonify/serverless-architectures-aws/issues"
+  },
+  "homepage": "https://github.com/wilsonify/serverless-architectures-aws#readme",
+  "dependencies": {
+    "aws-sdk": "^2.1445.0"
+  }
+}
