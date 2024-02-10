@@ -2,8 +2,6 @@ import logging
 import random
 from logging.config import dictConfig
 
-from dsl.gradient_descent import minimize_stochastic
-from dsl.simple_linear_regression import least_squares_fit, r_squared, squared_error, squared_error_gradient
 
 num_friends_good = [
     49, 41, 40, 25, 21, 21, 19, 19, 18, 18, 16, 15, 15, 15, 15, 14, 14, 13, 13, 13, 13, 12, 12, 11, 10, 10, 10, 10,
@@ -37,16 +35,8 @@ def main():
     r_squared_f_vs_m = r_squared(alpha_, beta_, num_friends_good, daily_minutes_good)
     logging.info("%r", f"r-squared {r_squared_f_vs_m}")
     logging.info("gradient descent")
-    random.seed(0)  # choose random value to start
     theta_ = [random.random(), random.random()]
-    alpha_, beta_ = minimize_stochastic(
-        squared_error,
-        squared_error_gradient,
-        num_friends_good,
-        daily_minutes_good,
-        theta_,
-        0.0001,
-    )
+    alpha_, beta_ = minimize(squared_error)
     logging.info("%r", "alpha {}".format(alpha_))
     logging.info("%r", "beta {}".format(beta_))
 
