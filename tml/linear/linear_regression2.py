@@ -1,3 +1,6 @@
+"""
+same as linear_regression.py with a Class
+"""
 import json
 import logging
 from logging.config import dictConfig
