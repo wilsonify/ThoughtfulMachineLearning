@@ -46,9 +46,7 @@ def get_list_to_matrix(x_list):
     return result
 
 
-def get_x_sans_intercept():
-    num_friends_good_nda = get_list_to_matrix(num_friends_good)
-    return num_friends_good_nda
+
 
 
 def get_x_with_an_intercept(x_nda):
