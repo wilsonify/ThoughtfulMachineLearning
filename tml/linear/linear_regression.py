@@ -46,9 +46,6 @@ def get_list_to_matrix(x_list):
     return result
 
 
-
-
-
 def get_x_with_an_intercept(x_nda):
     ones = np.ones(len(x_nda)).reshape(-1, 1)
     X_with_intercept = np.hstack((ones, x_nda))
