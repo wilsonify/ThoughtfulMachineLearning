@@ -174,7 +174,7 @@ def main_scrape_wine_pa():
             s3_client.put_object(
                 Body=wine_resp.text,
                 Bucket=OUTPUT_BUCKET,
-                Key=f"{OUTPUT_PREFIX}/{today_date_str}/html/wines/{count}_{suffix}.html"
+                Key=f"{OUTPUT_PREFIX}/{today_date_str}/html/wines/{count:02d}_{suffix}.html"
             )
 
 
