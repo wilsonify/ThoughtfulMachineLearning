@@ -1,11 +1,15 @@
+import json
 import math
+import os
 import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
 import bs4
 import pandas as pd
 import requests
 from boto3 import Session
+from io_library.list_objects_s3 import list_objects_s3
 
 from io_library.write_to_s3 import write_csv_to_s3
 from s01_wine_scrape import OUTPUT_BUCKET, OUTPUT_PREFIX
@@ -91,30 +95,28 @@ def ensure_dtypes(result):
     result["JS"] = pd.to_numeric(result["JS"])
 
 
-def extract_ratings(count, data, wine_soup):
+def extract_ratings(data, wine_soup):
     for n, z in enumerate(wine_soup.find_all(attrs={"class": ["wineRatings_list"]})):
         ratings_list = z.find_all("li", class_="wineRatings_listItem")
         for rating in ratings_list:
             initials = rating.find("span", class_="wineRatings_initials").text
             rating_value = rating.find("span", class_="wineRatings_rating").text
-            data[f"w{count:00002d}"][initials] = rating_value
+            data[initials] = rating_value
 
 
-def extract_prodAlcoholPercent(count, data, wine_soup):
+def extract_prodAlcoholPercent(data, wine_soup):
     for n, b in enumerate(wine_soup.find_all(attrs={"class": ["prodAlcoholPercent_inner"]})):
         percent_element = b.find("span", class_="prodAlcoholPercent_percent")
-        data[f"w{count:00002d}"][
-            "prodAlcoholPercent_percent"
-        ] = percent_element.text.strip()
+        data["prodAlcoholPercent_percent"] = percent_element.text.strip()
 
 
-def extract_prodAlcoholVolume(count, data, wine_soup):
+def extract_prodAlcoholVolume(data, wine_soup):
     for n, b in enumerate(wine_soup.find_all(attrs={"class": ["prodAlcoholVolume"]})):
         for c in b.find_all("span", class_="prodAlcoholVolume_text"):
-            data[f"w{count:00002d}"]["prodAlcoholVolume_text"] = c.contents[0]
+            data["prodAlcoholVolume_text"] = c.contents[0]
 
 
-def extract_meta(count, data, wine_soup):
+def extract_meta(data, wine_soup):
     for y in wine_soup.find_all(name="meta"):
         if "content" in y.attrs:
             v = y.attrs["content"]
@@ -125,19 +127,7 @@ def extract_meta(count, data, wine_soup):
                     k = y.attrs["itemprop"]
                 except:
                     k = y.attrs["class"][0]
-            data[f"w{count:00002d}"][k] = v
-
-
-def parse_page(search_url, wine_url, count, wine_soup):
-    data = {}
-    data[f"w{count:00002d}"] = {}
-    data[f"w{count:00002d}"]["search_url"] = search_url
-    data[f"w{count:00002d}"]["wine_url"] = wine_url
-    extract_meta(count, data, wine_soup)
-    extract_prodAlcoholVolume(count, data, wine_soup)
-    extract_prodAlcoholPercent(count, data, wine_soup)
-    extract_ratings(count, data, wine_soup)
-    return data
+            data[k] = v
 
 
 def main_scrape_wine_pa():
@@ -151,7 +141,7 @@ def main_scrape_wine_pa():
     total_pages = math.floor(total_items / 25.0)
     count = 0
     for i in range(1, total_pages + 1):
-        time.sleep(2)
+        time.sleep(0.5)
         url = f"{baseurl}/{i}"
         print(url)
         print(f"{i}/{total_pages} = {i / total_pages:0.2f}")
@@ -160,23 +150,95 @@ def main_scrape_wine_pa():
         s3_client.put_object(
             Body=resp.text,
             Bucket=OUTPUT_BUCKET,
-            Key=f"{OUTPUT_PREFIX}/{today_date_str}/html/pages/page_{i}.html"
+            Key=f"{OUTPUT_PREFIX}/{today_date_str}/html/pages/page_{i:02d}.html"
         )
-        for x in soup.find_all(attrs={"class": ["listGridItemName"]}):
-            count += 1
-            time.sleep(1)
-            link_text = x.attrs["href"]
-            wine_url = f"https://www.wine.com/product{link_text}"
-            wine_resp = requests.get(wine_url, headers={"User-Agent": "Mozilla/5.0"}, timeout=100)
-            print(f"got wine_url={wine_url}")
-            suffix = link_text.replace("/", "_")
-            suffix = suffix.replace("__", "_")
-            s3_client.put_object(
-                Body=wine_resp.text,
-                Bucket=OUTPUT_BUCKET,
-                Key=f"{OUTPUT_PREFIX}/{today_date_str}/html/wines/{count:02d}_{suffix}.html"
-            )
+
+
+def main_scrape_wine_one_page(page_key):
+    today_date_str = datetime.now().strftime('%Y-%m-%d')
+    s3_session = Session()
+    s3_client = s3_session.client('s3')
+    count = 0
+    resp = s3_client.get_object(
+        Bucket=OUTPUT_BUCKET,
+        Key=page_key
+    )
+    html_content = resp['Body'].read()
+    soup = bs4.BeautifulSoup(html_content, features="lxml")
+    for x in soup.find_all(attrs={"class": ["listGridItemName"]}):
+        count += 1
+        time.sleep(1)
+        link_text = x.attrs["href"]
+        wine_url = f"https://www.wine.com/product{link_text}"
+        wine_resp = requests.get(wine_url, headers={"User-Agent": "Mozilla/5.0"}, timeout=100)
+        print(f"got wine_url={wine_url}")
+        suffix = link_text.replace("/", "_")
+        suffix = suffix.replace("__", "_")
+        suffix = suffix.strip("_")
+        s3_client.put_object(
+            Body=wine_resp.text,
+            Bucket=OUTPUT_BUCKET,
+            Key=f"{OUTPUT_PREFIX}/{today_date_str}/html/wines/{suffix}.html"
+        )
+
+
+def main_concurrent():
+    today_date_str = datetime.now().strftime('%Y-%m-%d')
+    objs = list_objects_s3(
+        bucket=OUTPUT_BUCKET,
+        prefix=f"{OUTPUT_PREFIX}/{today_date_str}/html/pages",
+        glob_pattern='*.html'
+    )
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        # Submit each page crawl task to the thread pool executor
+        for obj in objs:
+            print(obj)
+            executor.submit(main_scrape_wine_one_page, obj)
+
+
+def main_scrape_one_wine(wine_key):
+    today_date_str = datetime.now().strftime('%Y-%m-%d')
+    wine_root, wine_ext = os.path.splitext(wine_key)
+    wine_head, wine_tail = os.path.split(wine_root)
+    s3_session = Session()
+    s3_client = s3_session.client('s3')
+    resp = s3_client.get_object(
+        Bucket=OUTPUT_BUCKET,
+        Key=wine_key
+    )
+    html_content = resp['Body'].read()
+    wine_soup = bs4.BeautifulSoup(html_content, features="lxml")
+    data = {}
+    data["wine_url"] = wine_key
+    extract_meta(data, wine_soup)
+    extract_prodAlcoholVolume(data, wine_soup)
+    extract_prodAlcoholPercent(data, wine_soup)
+    extract_ratings(data, wine_soup)
+    data_str = json.dumps(data)
+    data_bytes = data_str.encode("utf-8")
+    s3_client.put_object(
+        Body=data_bytes,
+        Bucket=OUTPUT_BUCKET,
+        Key=f"{OUTPUT_PREFIX}/{today_date_str}/json/wines/{wine_tail}.json"
+    )
+
+
+def main_concurrent_html_to_json():
+    today_date_str = datetime.now().strftime('%Y-%m-%d')
+    objs = list_objects_s3(
+        bucket=OUTPUT_BUCKET,
+        prefix=f"{OUTPUT_PREFIX}/{today_date_str}/html/wines",
+        glob_pattern='*.html'
+    )
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        # parse each page from html to json
+        for obj in objs:
+            print(obj)
+            executor.submit(main_scrape_one_wine, obj)
 
 
 if __name__ == "__main__":
-    main_scrape_wine_pa()
+    # main_scrape_wine_pa()
+    # main_scrape_wine_one_page(1)
+    # main_concurrent()
+    main_concurrent_html_to_json()
