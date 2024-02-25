@@ -43,6 +43,7 @@ def main_scrape_missing_wine_one_page(page_key):
     for ind, row in missing_json_df.iterrows():
         suffix = row["suffix"]
         wine_key = f"{OUTPUT_PREFIX}/{today_date_str}/html/wines/{suffix}.html"
+        print(f"wine_key = {wine_key}")
         main_scrape_one_wine(wine_key)
 
 
@@ -61,5 +62,5 @@ def main_scrape_wine_parallel():
 
 
 if __name__ == "__main__":
-    # main_scrape_missing_wine_one_page("wine/s01-scrape/2024-02-25/csv/reports/page_01_missing.csv")
+    #main_scrape_missing_wine_one_page("wine/s01-scrape/2024-02-25/csv/reports/page_01_missing.csv")
     main_scrape_wine_parallel()
