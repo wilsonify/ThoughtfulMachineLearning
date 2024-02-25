@@ -1,10 +1,26 @@
 def extract_ratings(data, wine_soup):
-    for n, z in enumerate(wine_soup.find_all(attrs={"class": ["wineRatings_list"]})):
-        ratings_list = z.find_all("li", class_="wineRatings_listItem")
+    for n, z in enumerate(wine_soup.find_all(attrs={"class": ["pipProdWineRatings"]})):
+        ratings_list = z.find_all("li", class_="pipProdWineRatings_item")
         for rating in ratings_list:
-            initials = rating.find("span", class_="wineRatings_initials").text
-            rating_value = rating.find("span", class_="wineRatings_rating").text
-            data[initials] = rating_value
+            rating_str = rating.text.strip()
+            rating_value, rating_name = rating_str.split()
+            data[rating_name] = rating_value
+
+
+def extract_details(data, wine_soup):
+    """
+        'Varietal': 'Other Red Blends',
+        'Region': 'Spain',
+        'Producer': 'Abadia Retuerta',
+        'Vintage': '2018',
+        'Size': '750ML',
+        'ABV': '14.5%'
+    """
+
+    titles = wine_soup.find_all('div', class_='pipProdDetails_title')
+    names = wine_soup.find_all('div', class_='pipProdDetails_name')
+    for title, name in zip(titles, names):
+        data[title.text.strip()] = name.text.strip()
 
 
 def extract_prodAlcoholPercent(data, wine_soup):
