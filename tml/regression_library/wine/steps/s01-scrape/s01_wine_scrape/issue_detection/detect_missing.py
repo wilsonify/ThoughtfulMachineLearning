@@ -1,6 +1,6 @@
 import json
 import os
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 
 import pandas as pd
@@ -85,11 +85,8 @@ def main_detect_missing_parallel():
         prefix=f"{OUTPUT_PREFIX}/{today_date_str}/json/pages",
         glob_pattern='*.json'
     )
-    with ThreadPoolExecutor(max_workers=16) as executor:
-        # Submit each page crawl task to the thread pool executor
-        for obj in objs:
-            print(obj)
-            executor.submit(main_detect_missing, obj)
+    with ProcessPoolExecutor(max_workers=8) as executor:
+        executor.map(main_detect_missing, objs)
 
 
 if __name__ == "__main__":
