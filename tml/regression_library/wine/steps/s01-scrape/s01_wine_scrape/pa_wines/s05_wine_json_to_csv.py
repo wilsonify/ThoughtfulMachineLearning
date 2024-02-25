@@ -1,14 +1,13 @@
 import os
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 
 import bs4
 import pandas as pd
 from boto3 import Session
-from io_library.read_from_s3 import read_dict_from_json_s3
 
 from io_library.list_objects_s3 import list_objects_s3
-
+from io_library.read_from_s3 import read_dict_from_json_s3
 from io_library.write_to_s3 import write_csv_to_s3
 from s01_wine_scrape import OUTPUT_BUCKET, OUTPUT_PREFIX
 
@@ -58,11 +57,8 @@ def main_scrape_wine_parallel_pages_json_to_csv():
         prefix=f"{OUTPUT_PREFIX}/{today_date_str}/html/pages",
         glob_pattern='*.html'
     )
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        # Submit each page crawl task to the thread pool executor
-        for obj in objs:
-            print(obj)
-            executor.submit(main_json_to_csv, obj)
+    with ProcessPoolExecutor(max_workers=8) as executor:
+        executor.map(main_json_to_csv, objs)
 
 
 if __name__ == "__main__":
