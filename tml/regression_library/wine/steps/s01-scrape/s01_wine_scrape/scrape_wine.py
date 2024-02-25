@@ -9,6 +9,8 @@ import bs4
 import pandas as pd
 import requests
 from boto3 import Session
+from io_library.read_from_s3 import read_dict_from_json_s3
+
 from io_library.list_objects_s3 import list_objects_s3
 
 from io_library.write_to_s3 import write_csv_to_s3
@@ -237,8 +239,62 @@ def main_concurrent_html_to_json():
             executor.submit(main_scrape_one_wine, obj)
 
 
+def main_json_to_csv(page_key):
+    page_root, page_ext = os.path.splitext(page_key)
+    page_head, page_tail = os.path.split(page_root)
+    today_date_str = datetime.now().strftime('%Y-%m-%d')
+    s3_session = Session()
+    s3_client = s3_session.client('s3')
+    count = 0
+    resp = s3_client.get_object(
+        Bucket=OUTPUT_BUCKET,
+        Key=page_key
+    )
+    html_content = resp['Body'].read()
+    soup = bs4.BeautifulSoup(html_content, features="lxml")
+    series_to_concat = []
+    df = pd.DataFrame()
+    for x in soup.find_all(attrs={"class": ["listGridItemName"]}):
+        link_text = x.attrs["href"]
+        suffix = link_text.replace("/", "_")
+        suffix = suffix.replace("__", "_")
+        suffix = suffix.strip("_")
+        wine_key = f"{OUTPUT_PREFIX}/{today_date_str}/json/wines/{suffix}.json"
+        print(f"wine_key = {wine_key}")
+        try:
+            data_dict = read_dict_from_json_s3(
+            bucket=OUTPUT_BUCKET,
+            key=wine_key
+        )
+            count += 1
+        except:
+            continue
+        wine_series = pd.Series(data_dict)
+        df = pd.concat([df,wine_series],axis=0,ignore_index=True)
+        print(f"length = {len(series_to_concat)}")
+
+    write_csv_to_s3(df, bucket=OUTPUT_BUCKET, key=f"{OUTPUT_PREFIX}/{today_date_str}/csv/{page_tail}.csv")
+
+
+def main_concurrent_pages_json_to_csv():
+    today_date_str = datetime.now().strftime('%Y-%m-%d')
+    objs = list_objects_s3(
+        bucket=OUTPUT_BUCKET,
+        prefix=f"{OUTPUT_PREFIX}/{today_date_str}/html/pages",
+        glob_pattern='*.html'
+    )
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        # Submit each page crawl task to the thread pool executor
+        for obj in objs:
+            print(obj)
+            executor.submit(main_json_to_csv, obj)
+
+
 if __name__ == "__main__":
     # main_scrape_wine_pa()
     # main_scrape_wine_one_page(1)
     # main_concurrent()
-    main_concurrent_html_to_json()
+    # main_concurrent_html_to_json()
+    # main_json_to_csv()
+    #main_json_to_csv(f"wine/s01-scrape/2024-02-24/html/pages/page_01.html")
+    main_concurrent_pages_json_to_csv()
