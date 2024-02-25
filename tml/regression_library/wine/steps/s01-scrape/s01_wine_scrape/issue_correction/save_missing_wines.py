@@ -1,5 +1,5 @@
 import time
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 from io import BytesIO
 
@@ -54,13 +54,10 @@ def main_scrape_wine_parallel():
         prefix=f"{OUTPUT_PREFIX}/{today_date_str}/csv/reports",
         glob_pattern='*_missing.csv'
     )
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        # Submit each page crawl task to the thread pool executor
-        for obj in objs:
-            print(obj)
-            executor.submit(main_scrape_missing_wine_one_page, obj)
+    with ProcessPoolExecutor(max_workers=8) as executor:
+        executor.map(main_scrape_missing_wine_one_page, objs)
 
 
 if __name__ == "__main__":
-    #main_scrape_missing_wine_one_page("wine/s01-scrape/2024-02-25/csv/reports/page_01_missing.csv")
+    # main_scrape_missing_wine_one_page("wine/s01-scrape/2024-02-25/csv/reports/page_01_missing.csv")
     main_scrape_wine_parallel()
