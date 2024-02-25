@@ -1,3 +1,4 @@
+import json
 import os
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
@@ -23,30 +24,34 @@ def main_detect_missing(page_key):
         Bucket=OUTPUT_BUCKET,
         Key=page_key
     )
-    html_content = resp['Body'].read()
-    soup = bs4.BeautifulSoup(html_content, features="lxml")
+    json_content = resp['Body'].read()
+    wines_list = json.loads(json_content)
     dfs_to_concat = []
-    for x in soup.find_all(attrs={"class": ["listGridItemName"]}):
-        link_text = x.attrs["href"]
-        suffix = link_text.replace("/", "_")
-        suffix = suffix.replace("__", "_")
-        suffix = suffix.strip("_")
+    for wine in wines_list:
+        link_text = wine["link_text"]
+        wine_url = wine["wine_url"]
+        suffix = wine["suffix"]
         wine_key = f"{OUTPUT_PREFIX}/{today_date_str}/json/wines/{suffix}.json"
         print(f"wine_key = {wine_key}")
         try:
-            data_dict = read_dict_from_json_s3(
-                bucket=OUTPUT_BUCKET,
-                key=wine_key
-            )
+            read_dict_from_json_s3(bucket=OUTPUT_BUCKET, key=wine_key)
             count += 1
             print(f"found wine_key = {wine_key}")
             row_df = pd.DataFrame(dict(
+                page_key=[page_key],
+                wine_url=[wine_url],
+                link_text=[link_text],
+                suffix=[suffix],
                 wine_key=[wine_key],
                 detect_missing=False
             ))
         except:
             print(f"missing wine_key = {wine_key}")
             row_df = pd.DataFrame(dict(
+                page_key=[page_key],
+                wine_url=[wine_url],
+                link_text=[link_text],
+                suffix=[suffix],
                 wine_key=[wine_key],
                 detect_missing=True
             ))
@@ -65,10 +70,10 @@ def main_detect_missing_parallel():
     today_date_str = datetime.now().strftime('%Y-%m-%d')
     objs = list_objects_s3(
         bucket=OUTPUT_BUCKET,
-        prefix=f"{OUTPUT_PREFIX}/{today_date_str}/html/pages",
-        glob_pattern='*.html'
+        prefix=f"{OUTPUT_PREFIX}/{today_date_str}/json/pages",
+        glob_pattern='*.json'
     )
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    with ThreadPoolExecutor(max_workers=16) as executor:
         # Submit each page crawl task to the thread pool executor
         for obj in objs:
             print(obj)
@@ -76,5 +81,5 @@ def main_detect_missing_parallel():
 
 
 if __name__ == "__main__":
-    # main_detect_missing(f"wine/s01-scrape/2024-02-25/html/pages/page_01.html")
+    # main_detect_missing(f"wine/s01-scrape/2024-02-25/json/pages/page_01.json")
     main_detect_missing_parallel()

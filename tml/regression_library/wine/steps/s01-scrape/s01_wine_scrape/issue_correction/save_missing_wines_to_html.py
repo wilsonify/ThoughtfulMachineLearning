@@ -1,8 +1,9 @@
-import json
 import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
+from io import BytesIO
 
+import pandas as pd
 import requests
 from boto3 import Session
 
@@ -10,7 +11,7 @@ from io_library.list_objects_s3 import list_objects_s3
 from s01_wine_scrape import OUTPUT_BUCKET, OUTPUT_PREFIX
 
 
-def main_scrape_wine_one_page(page_key):
+def main_scrape_missing_wine_one_page(page_key):
     today_date_str = datetime.now().strftime('%Y-%m-%d')
     s3_session = Session()
     s3_client = s3_session.client('s3')
@@ -19,13 +20,14 @@ def main_scrape_wine_one_page(page_key):
         Bucket=OUTPUT_BUCKET,
         Key=page_key
     )
-    json_content = resp['Body'].read()
-    wines_list = json.loads(json_content)
-    for wine in wines_list:
+    csv_content = resp['Body'].read()
+    missing_df = pd.read_csv(BytesIO(csv_content))
+    missing_df = missing_df[missing_df["detect_missing"]]
+    for row in missing_df.iterrows():
         count += 1
         time.sleep(5)
-        wine_url = wine["wine_url"]
-        suffix = wine["suffix"]
+        wine_url = row["wine_url"]
+        suffix = row["suffix"]
         wine_key = f"{OUTPUT_PREFIX}/{today_date_str}/html/wines/{suffix}.html"
         wine_resp = requests.get(wine_url, headers={"User-Agent": "Mozilla/5.0"}, timeout=100)
         print(f"got wine_url={wine_url}")
@@ -40,11 +42,11 @@ def main_scrape_wine_parallel():
     today_date_str = datetime.now().strftime('%Y-%m-%d')
     objs = list_objects_s3(
         bucket=OUTPUT_BUCKET,
-        prefix=f"{OUTPUT_PREFIX}/{today_date_str}/json/pages",
-        glob_pattern='*.json'
+        prefix=f"{OUTPUT_PREFIX}/{today_date_str}/csv/reports",
+        glob_pattern='*_missing.csv'
     )
     with ThreadPoolExecutor(max_workers=5) as executor:
         # Submit each page crawl task to the thread pool executor
         for obj in objs:
             print(obj)
-            executor.submit(main_scrape_wine_one_page, obj)
+            executor.submit(main_scrape_missing_wine_one_page, obj)
