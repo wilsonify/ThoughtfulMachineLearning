@@ -67,7 +67,7 @@ def main_page_html_to_json_parallel():
         prefix=f"{OUTPUT_PREFIX}/{today_date_str}/html/pages",
         glob_pattern='*.html'
     )
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    with ThreadPoolExecutor(max_workers=8) as executor:
         # Submit each page crawl task to the thread pool executor
         for obj in objs:
             print(obj)
@@ -75,5 +75,5 @@ def main_page_html_to_json_parallel():
 
 
 if __name__ == "__main__":
-    main_page_html_to_json("wine/s01-scrape/2024-02-25/html/pages/page_01.html")
-    # main_page_html_to_json_parallel()
+    # main_page_html_to_json("wine/s01-scrape/2024-02-25/html/pages/page_01.html")
+    main_page_html_to_json_parallel()
