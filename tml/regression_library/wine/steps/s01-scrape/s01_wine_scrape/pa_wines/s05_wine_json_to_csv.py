@@ -1,8 +1,8 @@
+import json
 import os
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 
-import bs4
 import pandas as pd
 from boto3 import Session
 
@@ -23,14 +23,11 @@ def main_json_to_csv(page_key):
         Bucket=OUTPUT_BUCKET,
         Key=page_key
     )
-    html_content = resp['Body'].read()
-    soup = bs4.BeautifulSoup(html_content, features="lxml")
+    json_content = resp['Body'].read()
+    wines_list = json.loads(json_content)
     dfs_to_concat = []
-    for x in soup.find_all(attrs={"class": ["listGridItemName"]}):
-        link_text = x.attrs["href"]
-        suffix = link_text.replace("/", "_")
-        suffix = suffix.replace("__", "_")
-        suffix = suffix.strip("_")
+    for wine in wines_list:
+        suffix = wine["suffix"]
         wine_key = f"{OUTPUT_PREFIX}/{today_date_str}/json/wines/{suffix}.json"
         print(f"wine_key = {wine_key}")
         try:
@@ -39,12 +36,14 @@ def main_json_to_csv(page_key):
                 key=wine_key
             )
             count += 1
+            print(f"found wine_key = {wine_key}")
         except:
+            print(f"could not find wine_key = {wine_key}")
             continue
-        row_df = pd.DataFrame(data_dict, index=[count])
-        dfs_to_concat.append(row_df)
+        dfs_to_concat.append(pd.DataFrame(data_dict, index=[count]))
         print(f"length = {len(dfs_to_concat)}")
     df = pd.concat(dfs_to_concat)
+    df = df.reset_index(drop=True)
     df.index.name = "index"
     print(f"df.shape = {df.shape}")
     write_csv_to_s3(df, bucket=OUTPUT_BUCKET, key=f"{OUTPUT_PREFIX}/{today_date_str}/csv/pages/{page_tail}.csv")
@@ -54,8 +53,8 @@ def main_scrape_wine_parallel_pages_json_to_csv():
     today_date_str = datetime.now().strftime('%Y-%m-%d')
     objs = list_objects_s3(
         bucket=OUTPUT_BUCKET,
-        prefix=f"{OUTPUT_PREFIX}/{today_date_str}/html/pages",
-        glob_pattern='*.html'
+        prefix=f"{OUTPUT_PREFIX}/{today_date_str}/json/pages",
+        glob_pattern='*.json'
     )
     with ProcessPoolExecutor(max_workers=8) as executor:
         executor.map(main_json_to_csv, objs)
