@@ -6,26 +6,20 @@ import bs4
 import pandas as pd
 import requests
 
-from scrape_wine import (
-    extract_meta,
-    extract_prodAlcoholPercent,
-    extract_ratings,
-    save_progress,
-    extract_prodAlcoholVolume
-)
+from s01_wine_scrape.extract import extract_ratings, extract_prodAlcoholPercent, extract_prodAlcoholVolume, extract_meta
+from s01_wine_scrape.save_progress import save_progress
 
-result_filename = "wine_spectator.csv"
 pd.options.plotting.backend = "plotly"
 
 baseurl = "https://www.wine.com/list/wine/wine-spectator/7155-202"
 
-columns_in_order = [
-    "name", "wine_url", "productVarietal", "productStock", "productRegion", "productPrice", "productOrigin",
-    "productID", "productCompetitiveIntensity", "ProductAvailability", "pProductID", "description", "pageName",
-    "shippingRegion", "shipToState", "priceCurrency", "price", "averageRating_bestRating", "averageRating_worstRating",
-    "bestRating", "worstRating", "additionalType", "uploadDate", "prodAlcoholVolume_text", "prodAlcoholPercent_percent",
-    "JS", "WS", "WW", "D", "BH", "W&S", "WE", "RP", "JD", "SJ", "V", "CG", "TP",
-]
+
+def restore_progress():
+    df = pd.read_csv("wine_spectator.csv", index_col=0)
+    data = df.to_dict(orient="index")
+    wine_count = df.shape[0]
+    page_count = floor(wine_count / 25.0)
+    return page_count, wine_count, data
 
 
 def main_scrape_wine_resume():
@@ -66,13 +60,5 @@ def main_scrape_wine_resume():
     # fig.show()
 
 
-def restore_progress():
-    df = pd.read_csv(result_filename, index_col=0)
-    data = df.to_dict(orient="index")
-    wine_count = df.shape[0]
-    page_count = floor(wine_count / 25.0)
-    return page_count, wine_count, data
-
-
 if __name__ == "__main__":
-    main()
+    main_scrape_wine_resume()

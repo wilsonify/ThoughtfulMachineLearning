@@ -1,6 +1,6 @@
 from pprint import pprint
 
-from s01_wine_scrape.scrape_wine import main_scrape_wine_pa
+from s01_wine_scrape.pa_wines.s01_save_pages_to_html import main_scrape_wine_pa
 
 
 def lambda_handler(event, context):
@@ -16,6 +16,6 @@ def lambda_handler(event, context):
 
     response = {
         "statusCode": 200,
-        "body": "Success from mlflow-tf-s01-create-training-dataset lambda"
+        "body": "Success from s01_wine_scrape lambda"
     }
     return response
