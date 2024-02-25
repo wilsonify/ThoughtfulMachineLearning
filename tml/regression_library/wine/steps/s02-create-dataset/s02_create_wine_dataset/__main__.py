@@ -1,86 +1,67 @@
-import json
-import os
-from urllib.parse import unquote
+from pprint import pprint
 
-import boto3
+import pandas as pd
 
-sqs = boto3.client('sqs')
-
-
-def get_key_from_s3_put(event):
-    key = event['Records'][0]['s3']['object']['key']
-    source_key = unquote(key.replace('+', ' '))
-    return source_key
+from io_library.list_objects_s3 import list_objects_s3
+from io_library.read_from_s3 import read_csv_from_s3
+from io_library.write_to_s3 import write_parquet_to_s3, write_csv_to_s3
+from s02_create_wine_dataset import INPUT_BUCKET, INPUT_PREFIX, OUTPUT_BUCKET, OUTPUT_PREFIX
 
 
-def get_bucket_from_s3_put(event):
-    bucket_name = event["Records"][0]["s3"]["bucket"]["name"]
-    return bucket_name
+def happy_path(context):
+    objs = list_objects_s3(bucket=INPUT_BUCKET, prefix=f"{INPUT_PREFIX}/csv/pages", glob_pattern='*.csv')
+    dfs_to_concat = []
+    for obj in objs:
+        df = read_csv_from_s3(bucket=INPUT_BUCKET, key=obj)
+        dfs_to_concat.append(df)
+    result_df = pd.concat(dfs_to_concat)
+    result_df = result_df.reset_index(drop=True)
+    result_df.index.name = "index"
 
+    # Randomly shuffle the data
+    result_df = result_df.sample(frac=1, random_state=42)
 
-audio_selector = dict(SelectorType='TRACK', Tracks=[1])
-output1 = dict(
-    Preset='System-Generic_Hd_Mp4_Avc_Aac_16x9_1920x1080p_24Hz_6Mbps',
-    Extension='mp4',
-    NameModifier='_16x9_1920x1080p_24Hz_6Mbps'
-)
-output2 = dict(
-    Preset='System-Generic_Hd_Mp4_Avc_Aac_16x9_1280x720p_24Hz_4.5Mbps',
-    Extension='mp4',
-    NameModifier='_16x9_1280x720p_24Hz_4.5Mbps'
-)
-output3 = dict(
-    Preset='System-Generic_Sd_Mp4_Avc_Aac_4x3_640x480p_24Hz_1.5Mbps',
-    Extension='mp4',
-    NameModifier='_4x3_640x480p_24Hz_1.5Mbps'
-)
+    # Calculate the sizes for train, test, and validation sets
+    total_size = len(result_df)
+    test_size = int(total_size * 0.2)  # 20% for testing
+    validate_size = int(total_size * 0.05)  # 5% for validation
+    train_size = total_size - test_size - validate_size
 
+    # Split the dataset into train, test, and validation sets
+    train_df = result_df[:train_size]
+    test_df = result_df[train_size:train_size + test_size]
+    validate_df = result_df[train_size + test_size:]
 
-def happy_path(event):
-    bucket_name = get_bucket_from_s3_put(event)
-    source_key = get_key_from_s3_put(event)
-    input_uri = f's3://{bucket_name}/{source_key}'
-    output_bucket_name = os.getenv('TRANSCODED_VIDEO_BUCKET', "default-bucket")
-    output_prefix = source_key.split('.')[0]
-    output_uri = f's3://{output_bucket_name}/{output_prefix}/'
-    role = os.getenv('MEDIA_ROLE', "default-media-role")
-    mc_set_inputs = [dict(
-        FileInput=input_uri,
-        AudioSelectors={'Audio Selector 1': audio_selector}
-    )]
-    file_group_settings = dict(Destination=output_uri)
-    output_group_settings = dict(
-        Type='FILE_GROUP_SETTINGS',
-        FileGroupSettings=file_group_settings
-    )
-    mc_set_output_groups = [dict(
-        Name='File Group',
-        Outputs=[output1, output2, output3],
-        OutputGroupSettings=output_group_settings
-    )]
-    settings = dict(Inputs=mc_set_inputs, OutputGroups=mc_set_output_groups)
-    job = dict(Role=role, Settings=settings)
-    return job
+    # Write train data to S3
+    write_csv_to_s3(df=train_df, bucket=OUTPUT_BUCKET, key=f"{OUTPUT_PREFIX}/csv/train.csv")
+    write_parquet_to_s3(df=train_df, bucket=OUTPUT_BUCKET, key=f"{OUTPUT_PREFIX}/parquet/train.parquet")
 
+    # Write test data to S3
+    write_csv_to_s3(df=test_df, bucket=OUTPUT_BUCKET, key=f"{OUTPUT_PREFIX}/csv/test.csv")
+    write_parquet_to_s3(df=test_df, bucket=OUTPUT_BUCKET, key=f"{OUTPUT_PREFIX}/parquet/test.parquet")
 
-def send_message(job_dict):
-    print("Send message to SQS queue")
-    default_queue_url = "https://sqs.us-east-1.amazonaws.com/064592191516/serverless-video-transcode-sqs-try"
-    queue_url = os.getenv('SQS_QUEUE_URL', default_queue_url)
-    job_str = json.dumps(job_dict)
-    response = sqs.send_message(
-        QueueUrl=queue_url,
-        DelaySeconds=0,
-        MessageBody=job_str
-    )
-    print(response['MessageId'])
+    # Write validation data to S3
+    write_csv_to_s3(df=validate_df, bucket=OUTPUT_BUCKET, key=f"{OUTPUT_PREFIX}/csv/validate.csv")
+    write_parquet_to_s3(df=validate_df, bucket=OUTPUT_BUCKET, key=f"{OUTPUT_PREFIX}/parquet/validate.parquet")
 
 
 def lambda_handler(event, context):
-    media_convert_result = happy_path(event)
-    print(media_convert_result)
-    send_message(media_convert_result)
-    return {
-        'statusCode': 200,
-        'body': json.dumps('Video transcoding job submitted successfully!')
+    print("event")
+    pprint(event)
+
+    print("context")
+    pprint(context)
+
+    print("start main")
+    happy_path(context)
+    print("done main")
+
+    response = {
+        "statusCode": 200,
+        "body": "Success from s02_create_wine_dataset lambda"
     }
+    return response
+
+
+if __name__ == "__main__":
+    happy_path({})
