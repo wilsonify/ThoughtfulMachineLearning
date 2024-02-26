@@ -12,7 +12,9 @@ docker-push:
 integrate: docker-image docker-login-ecr docker-push
 
 deploy:
-	aws lambda update-function-code --function-name s01-wine-scrape-lambda --image-uri 064592191516.dkr.ecr.us-east-1.amazonaws.com/s01_wine_scrape:$(VERSION)
+	aws lambda update-function-code --function-name s01-wine-scrape-lambda --image-uri 064592191516.dkr.ecr.us-east-1.amazonaws.com/s01_wine_scrape:$(VERSION) > update-result.json
+
+cicd: integrate deploy
 
 docker-stop:
 	docker stop tvp || true
