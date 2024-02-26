@@ -35,3 +35,7 @@ def main_scrape_wine_pa():
             Bucket=OUTPUT_BUCKET,
             Key=f"{OUTPUT_PREFIX}/{today_date_str}/html/pages/page_{i:02d}.html"
         )
+
+
+if __name__ == "__main__":
+    main_scrape_wine_pa()

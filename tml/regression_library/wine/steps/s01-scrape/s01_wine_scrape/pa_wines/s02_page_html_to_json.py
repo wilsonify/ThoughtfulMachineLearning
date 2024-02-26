@@ -4,13 +4,13 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
+import boto3
 import bs4
 import pandas as pd
 from boto3 import Session
-from io_library.write_to_s3 import write_csv_to_s3
 
 from io_library.list_objects_s3 import list_objects_s3
-
+from io_library.write_to_s3 import write_csv_to_s3
 from s01_wine_scrape import OUTPUT_BUCKET, OUTPUT_PREFIX
 
 
@@ -72,6 +72,27 @@ def main_page_html_to_json_parallel():
         for obj in objs:
             print(obj)
             executor.submit(main_page_html_to_json, obj)
+
+
+def enqueue_page_html_to_json():
+    sqs = boto3.client('sqs')
+    queue_url = 'wine-sqs-try'
+    today_date_str = datetime.now().strftime('%Y-%m-%d')
+    objs = list_objects_s3(
+        bucket=OUTPUT_BUCKET,
+        prefix=f"{OUTPUT_PREFIX}/{today_date_str}/html/pages",
+        glob_pattern='*.html'
+    )
+    for obj in objs:
+        message_dict = {
+            "strategy": "main_page_html_to_json",
+            "page_key": obj
+        }
+        message_str = json.dumps(message_dict)
+        sqs.send_message(
+            QueueUrl=queue_url,
+            MessageBody=message_str
+        )
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@ import os
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 
+import boto3
 import pandas as pd
 from boto3 import Session
 
@@ -31,10 +32,7 @@ def main_json_to_csv(page_key):
         wine_key = f"{OUTPUT_PREFIX}/{today_date_str}/json/wines/{suffix}.json"
         print(f"wine_key = {wine_key}")
         try:
-            data_dict = read_dict_from_json_s3(
-                bucket=OUTPUT_BUCKET,
-                key=wine_key
-            )
+            data_dict = read_dict_from_json_s3(bucket=OUTPUT_BUCKET, key=wine_key)
             count += 1
             print(f"found wine_key = {wine_key}")
         except:
@@ -58,6 +56,27 @@ def main_scrape_wine_parallel_pages_json_to_csv():
     )
     with ProcessPoolExecutor(max_workers=8) as executor:
         executor.map(main_json_to_csv, objs)
+
+
+def enqueue_json_to_csv():
+    sqs = boto3.client('sqs')
+    queue_url = 'wine-sqs-try'
+    today_date_str = datetime.now().strftime('%Y-%m-%d')
+    objs = list_objects_s3(
+        bucket=OUTPUT_BUCKET,
+        prefix=f"{OUTPUT_PREFIX}/{today_date_str}/json/pages",
+        glob_pattern='*.json'
+    )
+    for obj in objs:
+        message_dict = {
+            "strategy": "main_json_to_csv",
+            "wine_key": obj
+        }
+        message_str = json.dumps(message_dict)
+        sqs.send_message(
+            QueueUrl=queue_url,
+            MessageBody=message_str
+        )
 
 
 if __name__ == "__main__":

@@ -61,13 +61,13 @@ def main_enqueue_html_to_json():
         prefix=f"{OUTPUT_PREFIX}/{today_date_str}/html/wines",
         glob_pattern='*.html'
     )
-    for obj in objs[:10]:
+    for obj in objs:
         message_dict = {
             "strategy": "main_scrape_one_wine",
             "wine_key": obj
         }
         message_str = json.dumps(message_dict)
-        message_bytes = message_str.encode("utf-8")
+
         sqs.send_message(
             QueueUrl=queue_url,
             MessageBody=message_str

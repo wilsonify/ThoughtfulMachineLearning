@@ -3,6 +3,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 
+import boto3
 import requests
 from boto3 import Session
 
@@ -48,3 +49,24 @@ def main_scrape_wine_parallel():
         for obj in objs:
             print(obj)
             executor.submit(main_scrape_wine_one_page, obj)
+
+
+def enqueue_scrape_wine_one_page():
+    sqs = boto3.client('sqs')
+    queue_url = 'wine-sqs-try'
+    today_date_str = datetime.now().strftime('%Y-%m-%d')
+    objs = list_objects_s3(
+        bucket=OUTPUT_BUCKET,
+        prefix=f"{OUTPUT_PREFIX}/{today_date_str}/json/pages",
+        glob_pattern='*.json'
+    )
+    for obj in objs:
+        message_dict = {
+            "strategy": "main_scrape_wine_one_page",
+            "page_key": obj
+        }
+        message_str = json.dumps(message_dict)
+        sqs.send_message(
+            QueueUrl=queue_url,
+            MessageBody=message_str
+        )
