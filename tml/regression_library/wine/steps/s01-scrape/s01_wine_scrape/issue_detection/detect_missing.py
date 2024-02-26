@@ -3,6 +3,7 @@ import os
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 
+import boto3
 import pandas as pd
 from boto3 import Session
 
@@ -87,6 +88,27 @@ def main_detect_missing_parallel():
     )
     with ProcessPoolExecutor(max_workers=8) as executor:
         executor.map(main_detect_missing, objs)
+
+
+def enqueue_detect_missing():
+    sqs = boto3.client('sqs')
+    queue_url = 'wine-sqs-try'
+    today_date_str = datetime.now().strftime('%Y-%m-%d')
+    objs = list_objects_s3(
+        bucket=OUTPUT_BUCKET,
+        prefix=f"{OUTPUT_PREFIX}/{today_date_str}/json/pages",
+        glob_pattern='*.json'
+    )
+    for obj in objs:
+        message_dict = {
+            "strategy": "main_detect_missing",
+            "page_key": obj
+        }
+        message_str = json.dumps(message_dict)
+        sqs.send_message(
+            QueueUrl=queue_url,
+            MessageBody=message_str
+        )
 
 
 if __name__ == "__main__":

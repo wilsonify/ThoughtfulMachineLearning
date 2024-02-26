@@ -1,8 +1,10 @@
+import json
 import time
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 from io import BytesIO
 
+import boto3
 import pandas as pd
 import requests
 from boto3 import Session
@@ -56,6 +58,27 @@ def main_scrape_wine_parallel():
     )
     with ProcessPoolExecutor(max_workers=8) as executor:
         executor.map(main_correct_missing_one_page, objs)
+
+
+def enqueue_correct_missing():
+    sqs = boto3.client('sqs')
+    queue_url = 'wine-sqs-try'
+    today_date_str = datetime.now().strftime('%Y-%m-%d')
+    objs = list_objects_s3(
+        bucket=OUTPUT_BUCKET,
+        prefix=f"{OUTPUT_PREFIX}/{today_date_str}/csv/reports",
+        glob_pattern='*_missing.csv'
+    )
+    for obj in objs:
+        message_dict = {
+            "strategy": "main_detect_missing",
+            "page_key": obj
+        }
+        message_str = json.dumps(message_dict)
+        sqs.send_message(
+            QueueUrl=queue_url,
+            MessageBody=message_str
+        )
 
 
 if __name__ == "__main__":
