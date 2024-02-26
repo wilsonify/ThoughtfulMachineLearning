@@ -3,6 +3,7 @@ import os
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
 
+import boto3
 import bs4
 from boto3 import Session
 
@@ -13,6 +14,7 @@ from s01_wine_scrape.extract import extract_meta, extract_prodAlcoholVolume, ext
 
 
 def main_scrape_one_wine(wine_key):
+    print(f"wine_key={wine_key}")
     today_date_str = datetime.now().strftime('%Y-%m-%d')
     wine_root, wine_ext = os.path.splitext(wine_key)
     wine_head, wine_tail = os.path.split(wine_root)
@@ -50,5 +52,28 @@ def main_scrape_wine_parallel_html_to_json():
         executor.map(main_scrape_one_wine, objs)
 
 
+def main_enqueue_html_to_json():
+    sqs = boto3.client('sqs')
+    queue_url = 'wine-sqs-try'
+    today_date_str = datetime.now().strftime('%Y-%m-%d')
+    objs = list_objects_s3(
+        bucket=OUTPUT_BUCKET,
+        prefix=f"{OUTPUT_PREFIX}/{today_date_str}/html/wines",
+        glob_pattern='*.html'
+    )
+    for obj in objs[:10]:
+        message_dict = {
+            "strategy": "main_scrape_one_wine",
+            "wine_key": obj
+        }
+        message_str = json.dumps(message_dict)
+        message_bytes = message_str.encode("utf-8")
+        sqs.send_message(
+            QueueUrl=queue_url,
+            MessageBody=message_str
+        )
+
+
 if __name__ == "__main__":
-    main_scrape_wine_parallel_html_to_json()
+    # main_scrape_wine_parallel_html_to_json()
+    main_enqueue_html_to_json()
