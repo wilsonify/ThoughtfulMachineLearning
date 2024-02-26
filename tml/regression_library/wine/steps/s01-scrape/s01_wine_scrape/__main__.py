@@ -1,3 +1,4 @@
+import json
 from pprint import pprint
 
 from s01_wine_scrape.issue_correction.save_missing_wines import main_correct_missing_one_page
@@ -20,8 +21,14 @@ available = {
 
 
 def parse_event(event):
+    body = event.get("body", event)
+    if isinstance(body, str):
+        body_dict = json.load(body)
+    elif isinstance(body, dict):
+        body_dict = body
+
     parsed_event = {}
-    for key, value in event.items():
+    for key, value in body_dict.items():
         if hasattr(value, 'items') and callable(getattr(value, 'items')):
             parsed_event[key] = dict(value)
         else:

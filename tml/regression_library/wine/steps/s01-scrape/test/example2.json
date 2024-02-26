@@ -1,0 +1,6 @@
+{
+  "body": {
+    "strategy": "main_scrape_one_wine",
+    "wine_key": "wine/s01-scrape/2024-02-25/html/wines/product_10000-hours-cabernet-sauvignon-2019_834207.html"
+  }
+}

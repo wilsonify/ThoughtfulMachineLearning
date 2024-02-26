@@ -1,4 +1,4 @@
-VERSION=0.1.5
+VERSION=0.1.6
 
 docker-image:
 	docker build --progress=plain -t 064592191516.dkr.ecr.us-east-1.amazonaws.com/s01_wine_scrape:$(VERSION) .
@@ -11,6 +11,9 @@ docker-push:
 
 integrate: docker-image docker-login-ecr docker-push
 
+deploy:
+	aws lambda update-function-code --function-name s01-wine-scrape-lambda --image-uri 064592191516.dkr.ecr.us-east-1.amazonaws.com/s01_wine_scrape:$(VERSION)
+
 docker-stop:
 	docker stop tvp || true
 
@@ -22,6 +25,9 @@ docker-test-negative:
 
 docker-test-positive:
 	curl "http://localhost:32768/2015-03-31/functions/function/invocations" --data-binary '@test/example.json'
+
+docker-test-positive-sqs:
+	curl "http://localhost:32768/2015-03-31/functions/function/invocations" --data-binary '@test/example2.json'
 
 check-infra:
 	cd infra && terraform init && terraform validate && tflint
