@@ -24,10 +24,10 @@ def lambda_handler(event, context):
     pprint(event)
 
     print("context")
-    pprint(context)
+    pprint(vars(context))
 
     print("start main")
-    strat_str = context.pop("strategy")
+    strat_str = event.pop("strategy")
     strat_func = available[strat_str]
 
     print(f"start {strat_str}")
