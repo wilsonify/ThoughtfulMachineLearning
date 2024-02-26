@@ -14,4 +14,4 @@ columns_in_order = [
     "prodAlcoholPercent_percent", "JS", "WS", "WW", "D", "BH", "W&S", "WE", "RP", "JD", "SJ", "V", "CG", "TP",
 ]
 
-pd.options.plotting.backend = "plotly"
+

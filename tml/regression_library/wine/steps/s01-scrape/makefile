@@ -1,4 +1,4 @@
-VERSION=0.1.1
+VERSION=0.1.2
 
 docker-image:
 	docker build --progress=plain -t 064592191516.dkr.ecr.us-east-1.amazonaws.com/s01_wine_scrape:$(VERSION) .
