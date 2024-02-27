@@ -3,7 +3,7 @@ import os.path
 
 import pytest
 
-from s01_wine_scrape.__main__ import parse_event
+from s01_wine_scrape.parse_one_event import parse_one_event, parse_first_event
 
 path_to_here = os.path.abspath(os.path.dirname(__file__))
 
@@ -29,21 +29,31 @@ def sqs_event_fixture():
 
 
 def test_parse_sqs_event(sqs_event):
-    result = parse_event(sqs_event)
+    result = parse_first_event(sqs_event)
     assert result == {
         'strategy': 'main_scrape_one_wine',
         'wine_key': 'wine/s01-scrape/2024-02-25/html/wines/product_10000-hours-cabernet-sauvignon-2019_834207.html'
     }
+
 
 def test_parse_body_event(body_event):
-    result = parse_event(body_event)
+    result = parse_first_event(body_event)
     assert result == {
         'strategy': 'main_scrape_one_wine',
         'wine_key': 'wine/s01-scrape/2024-02-25/html/wines/product_10000-hours-cabernet-sauvignon-2019_834207.html'
     }
 
-def test_parse_minimal_event(minimal_event):
-    result = parse_event(minimal_event)
+
+def test_parse_first_event_minimal_event(minimal_event):
+    result = parse_first_event(minimal_event)
+    assert result == {
+        'strategy': 'main_scrape_one_wine',
+        'wine_key': 'wine/s01-scrape/2024-02-25/html/wines/product_10000-hours-cabernet-sauvignon-2019_834207.html'
+    }
+
+
+def test_parse_one_event_minimal_event(minimal_event):
+    result = parse_one_event(minimal_event)
     assert result == {
         'strategy': 'main_scrape_one_wine',
         'wine_key': 'wine/s01-scrape/2024-02-25/html/wines/product_10000-hours-cabernet-sauvignon-2019_834207.html'
@@ -51,7 +61,7 @@ def test_parse_minimal_event(minimal_event):
 
 
 def test_parse_s3_event(s3_event):
-    result = parse_event(s3_event)
+    result = parse_one_event(s3_event)
     assert result == {
         'Records': [
             {'awsRegion': 'us-east-1', 'eventName': 'ObjectCreated:Put', 'eventSource': 'aws:s3',
