@@ -1,6 +1,8 @@
 import json
 from pprint import pprint
 
+import boto3
+
 from s01_wine_scrape.issue_correction.save_missing_wines import main_correct_missing_one_page
 from s01_wine_scrape.issue_detection.detect_missing import main_detect_missing
 from s01_wine_scrape.pa_wines.s01_save_pages_to_html import main_scrape_wine_pa
@@ -40,6 +42,7 @@ def parse_event(event):
 
 
 def lambda_handler(event, context):
+    sqs = boto3.client('sqs')
     print("event")
     print(f"type(event) = {type(event)}")
     event_parsed = parse_event(event)
@@ -53,9 +56,21 @@ def lambda_handler(event, context):
     strat_str = event_parsed.pop("strategy")
 
     strat_func = available[strat_str]
-
     print(f"start {strat_str}")
-    strat_func(**event_parsed)
+    try:
+        strat_func(**event_parsed)
+        print("success, send to done")
+        sqs.send_message(
+            QueueUrl='wine-sqs-done',
+            MessageBody=json.dumps(event_parsed)
+        )
+        print("success, send to done")
+    except:
+        print("could not process event, send to failed")
+        sqs.send_message(
+            QueueUrl='wine-sqs-fail',
+            MessageBody=json.dumps(event_parsed)
+        )
     print(f"done {strat_str}")
 
     print("done main")

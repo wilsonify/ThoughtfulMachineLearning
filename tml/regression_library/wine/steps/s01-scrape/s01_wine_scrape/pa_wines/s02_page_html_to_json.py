@@ -97,4 +97,5 @@ def enqueue_page_html_to_json():
 
 if __name__ == "__main__":
     # main_page_html_to_json("wine/s01-scrape/2024-02-25/html/pages/page_01.html")
-    main_page_html_to_json_parallel()
+    # main_page_html_to_json_parallel()
+    enqueue_page_html_to_json()
