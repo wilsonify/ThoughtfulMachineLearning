@@ -1,4 +1,4 @@
-VERSION=0.1.6
+VERSION=0.1.8
 
 docker-image:
 	docker build --progress=plain -t 064592191516.dkr.ecr.us-east-1.amazonaws.com/s01_wine_scrape:$(VERSION) .
@@ -30,6 +30,9 @@ docker-test-positive:
 
 docker-test-positive-sqs:
 	curl "http://localhost:32768/2015-03-31/functions/function/invocations" --data-binary '@test/example2.json'
+
+docker-test-positive-sqs:
+	curl "http://localhost:32768/2015-03-31/functions/function/invocations" --data-binary '@test/sqs.json'
 
 check-infra:
 	cd infra && terraform init && terraform validate && tflint

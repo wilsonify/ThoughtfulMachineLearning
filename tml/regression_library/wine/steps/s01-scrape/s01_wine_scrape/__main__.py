@@ -21,9 +21,12 @@ available = {
 
 
 def parse_event(event):
-    body = event.get("body", event)
+    messages_list = event.get('Records', [event])
+    message = messages_list[0]
+    body = message.get("body", event)
+
     if isinstance(body, str):
-        body_dict = json.load(body)
+        body_dict = json.loads(body)
     elif isinstance(body, dict):
         body_dict = body
 
@@ -47,11 +50,12 @@ def lambda_handler(event, context):
     pprint(vars(context))
 
     print("start main")
-    strat_str = event.pop("strategy")
+    strat_str = event_parsed.pop("strategy")
+
     strat_func = available[strat_str]
 
     print(f"start {strat_str}")
-    strat_func(**event)
+    strat_func(**event_parsed)
     print(f"done {strat_str}")
 
     print("done main")
