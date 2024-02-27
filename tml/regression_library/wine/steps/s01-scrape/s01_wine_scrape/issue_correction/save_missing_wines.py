@@ -49,7 +49,7 @@ def main_correct_missing_one_page(page_key):
         main_scrape_one_wine(wine_key)
 
 
-def main_scrape_wine_parallel():
+def main_correct_missing_parallel():
     today_date_str = datetime.now().strftime('%Y-%m-%d')
     objs = list_objects_s3(
         bucket=OUTPUT_BUCKET,
