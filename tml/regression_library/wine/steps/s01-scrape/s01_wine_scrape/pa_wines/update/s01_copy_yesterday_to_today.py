@@ -15,9 +15,10 @@ def copy_s3_objects(
     s3_client = boto3.client('s3')
     objects_to_copy = list_objects_s3(bucket=source_bucket, prefix=source_prefix)
     for obj in objects_to_copy:
-        copy_source = {'Bucket': source_bucket, 'Key': obj['Key']}
-        new_key = obj['Key'].replace(source_prefix, destination_prefix, 1)
+        copy_source = {'Bucket': source_bucket, 'Key': obj}
+        new_key = obj.replace(source_prefix, destination_prefix, 1)
         s3_client.copy_object(Bucket=destination_bucket, Key=new_key, CopySource=copy_source)
+        print(f"copied {source_bucket}/{obj} to {destination_bucket}/{new_key}")
 
 
 if __name__ == "__main__":

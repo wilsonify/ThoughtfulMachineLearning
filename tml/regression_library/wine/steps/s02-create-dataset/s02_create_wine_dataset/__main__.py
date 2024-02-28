@@ -1,22 +1,45 @@
 from pprint import pprint
 
+import numpy as np
 import pandas as pd
 
 from io_library.list_objects_s3 import list_objects_s3
 from io_library.read_from_s3 import read_csv_from_s3
 from io_library.write_to_s3 import write_parquet_to_s3, write_csv_to_s3
-from s02_create_wine_dataset import INPUT_BUCKET, INPUT_PREFIX, OUTPUT_BUCKET, OUTPUT_PREFIX
+from s02_create_wine_dataset import INPUT_BUCKET, INPUT_PREFIX, OUTPUT_BUCKET, OUTPUT_PREFIX, columns_in_order
+from s02_create_wine_dataset.format_abv import format_ABV
+from s02_create_wine_dataset.format_size import format_size
+
+
+def shared_preprocessing(df):
+    df = ensure_columns(df)
+    df["Size"] = format_size(df, "Size")
+    df["ABV"] = format_ABV(df, "ABV")
+    return df
+
+
+def ensure_columns(df):
+    for col in columns_in_order:
+        try:
+            df[col]
+        except KeyError:
+            df[col] = np.nan
+    return df
 
 
 def happy_path(context):
-    objs = list_objects_s3(bucket=INPUT_BUCKET, prefix=f"{INPUT_PREFIX}/csv/pages", glob_pattern='*.csv')
+    objs = list_objects_s3(bucket=INPUT_BUCKET, prefix=f"{INPUT_PREFIX}/2024-02-27/csv/pages", glob_pattern='*.csv')
     dfs_to_concat = []
     for obj in objs:
+        print(f"obj = {obj}")
         df = read_csv_from_s3(bucket=INPUT_BUCKET, key=obj)
         dfs_to_concat.append(df)
+        print(f"df.columns = {list(df.columns)}")
     result_df = pd.concat(dfs_to_concat)
     result_df = result_df.reset_index(drop=True)
     result_df.index.name = "index"
+
+    result_df = shared_preprocessing(result_df)
 
     # Randomly shuffle the data
     result_df = result_df.sample(frac=1, random_state=42)
