@@ -19,8 +19,8 @@ cicd: integrate deploy
 docker-stop:
 	docker stop tvp || true
 
-docker-run:
-	docker run --rm --name tvp -p 32768:8080 -d 064592191516.dkr.ecr.us-east-1.amazonaws.com/s01_wine_scrape:$(VERSION)
+docker-run: docker-stop docker-image
+	docker run --rm --name tvp -p 32768:8080 -e AWS_DEFAULT_PROFILE=064592191516 -v ~/.aws:/root/.aws -d 064592191516.dkr.ecr.us-east-1.amazonaws.com/s01_wine_scrape:$(VERSION)
 
 docker-test-negative:
 	curl "http://localhost:32768/2015-03-31/functions/function/invocations" -d '{}'

@@ -50,16 +50,33 @@ def process_one_message(message):
         on_error(message)
 
 
+def parse_event(event):
+    print("lambda_handler")
+    if 'Records' not in event:
+        event = {"Records": [event]}
+    assert 'Records' in event, "event from sqs must contain Records"
+    return event
+
+
+def parse_record(record):
+    if 'body' not in record:
+        record = {"body": record}
+    assert 'body' in record, "each record from sqs must contain body"
+    body = record['body']
+    message = body
+    if isinstance(body, (str, bytes, bytearray)):
+        message = json.loads(body)
+    return message
+
+
 def lambda_handler(event, context):
     print("lambda_handler")
-    assert 'Records' in event, "event from sqs must contain Records"
+    event_parsed = parse_event(event)
     for record in event['Records']:
-        assert 'body' in record, "each record from sqs must contain body"
-        body = record['body']
-        message = json.loads(body)
-        print(f"message = {message}")
+        message = parse_record(record)
+        print(f"Start processing one message = {message}")
         process_one_message(message)
-        print("Finished processing one message")
+        print("Done processing one message")
     print("Finished processing all messages")
     response = {
         "statusCode": 200,
