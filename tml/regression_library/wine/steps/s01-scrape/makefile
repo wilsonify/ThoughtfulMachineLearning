@@ -28,7 +28,7 @@ docker-test-negative:
 docker-test-positive:
 	curl "http://localhost:32768/2015-03-31/functions/function/invocations" --data-binary '@test/example.json'
 
-docker-test-positive-sqs:
+docker-test-positive-body:
 	curl "http://localhost:32768/2015-03-31/functions/function/invocations" --data-binary '@test/example2.json'
 
 docker-test-positive-sqs:
