@@ -2,6 +2,7 @@ import json
 import os
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
+from functools import partial
 
 import boto3
 import pandas as pd
@@ -36,10 +37,12 @@ def check_for_html(wine_key_html):
     return has_html
 
 
-def main_detect_missing(page_key):
+def main_detect_missing(page_key, today_date_str=None):
+    if today_date_str is None:
+        today_date_str = datetime.now().strftime('%Y-%m-%d')
     page_root, page_ext = os.path.splitext(page_key)
     page_head, page_tail = os.path.split(page_root)
-    today_date_str = datetime.now().strftime('%Y-%m-%d')
+
     s3_session = Session()
     s3_client = s3_session.client('s3')
     count = 0
@@ -79,15 +82,17 @@ def main_detect_missing(page_key):
     )
 
 
-def main_detect_missing_parallel():
-    today_date_str = datetime.now().strftime('%Y-%m-%d')
+def main_detect_missing_parallel(today_date_str=None):
+    if today_date_str is None:
+        today_date_str = datetime.now().strftime('%Y-%m-%d')
     objs = list_objects_s3(
         bucket=OUTPUT_BUCKET,
         prefix=f"{OUTPUT_PREFIX}/{today_date_str}/json/pages",
         glob_pattern='*.json'
     )
+    main_detect_missing_part = partial(main_detect_missing, today_date_str=today_date_str)
     with ProcessPoolExecutor(max_workers=8) as executor:
-        executor.map(main_detect_missing, objs)
+        executor.map(main_detect_missing_part, objs)
 
 
 def enqueue_detect_missing():

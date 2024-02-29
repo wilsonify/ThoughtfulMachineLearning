@@ -2,6 +2,7 @@ import json
 import time
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
+from functools import partial
 from io import BytesIO
 
 import boto3
@@ -9,13 +10,15 @@ import pandas as pd
 import requests
 from boto3 import Session
 
+
 from io_library.list_objects_s3 import list_objects_s3
 from s01_wine_scrape import OUTPUT_BUCKET, OUTPUT_PREFIX
-from s01_wine_scrape.pa_wines.s04_wine_html_to_json import main_scrape_one_wine
+from s01_wine_scrape.pa_wines.create.s04_wine_html_to_json import main_scrape_one_wine
 
 
-def main_correct_missing_one_page(page_key):
-    today_date_str = datetime.now().strftime('%Y-%m-%d')
+def main_correct_missing_one_page(page_key, today_date_str=None):
+    if today_date_str is None:
+        today_date_str = datetime.now().strftime('%Y-%m-%d')
     s3_session = Session()
     s3_client = s3_session.client('s3')
     count = 0
@@ -49,13 +52,15 @@ def main_correct_missing_one_page(page_key):
         main_scrape_one_wine(wine_key)
 
 
-def main_correct_missing_parallel():
-    today_date_str = datetime.now().strftime('%Y-%m-%d')
+def main_correct_missing_parallel(today_date_str=None):
+    if today_date_str is None:
+        today_date_str = datetime.now().strftime('%Y-%m-%d')
     objs = list_objects_s3(
         bucket=OUTPUT_BUCKET,
         prefix=f"{OUTPUT_PREFIX}/{today_date_str}/csv/reports",
         glob_pattern='*_missing.csv'
     )
+    main_correct_missing_one_page_part = partial(main_correct_missing_one_page, today_date_str=today_date_str)
     with ProcessPoolExecutor(max_workers=8) as executor:
         executor.map(main_correct_missing_one_page, objs)
 

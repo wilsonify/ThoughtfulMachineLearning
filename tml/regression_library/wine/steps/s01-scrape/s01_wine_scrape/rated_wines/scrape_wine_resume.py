@@ -44,6 +44,7 @@ def main_scrape_wine_resume():
             time.sleep(0.2)
             try:
                 wine_resp = requests.get(wine_url, headers={"User-Agent": "Mozilla/5.0"}, timeout=100)
+                assert resp.status_code == 200
             except:
                 print(f"failed to get wine_url={wine_url}")
                 continue

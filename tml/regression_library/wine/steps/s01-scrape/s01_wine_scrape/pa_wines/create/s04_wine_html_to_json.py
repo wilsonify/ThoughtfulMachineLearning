@@ -13,9 +13,10 @@ from s01_wine_scrape.extract import extract_meta, extract_prodAlcoholVolume, ext
     extract_ratings, extract_details
 
 
-def main_scrape_one_wine(wine_key):
+def main_scrape_one_wine(wine_key, today_date_str=None):
     print(f"wine_key={wine_key}")
-    today_date_str = datetime.now().strftime('%Y-%m-%d')
+    if today_date_str is None:
+        today_date_str = datetime.now().strftime('%Y-%m-%d')
     wine_root, wine_ext = os.path.splitext(wine_key)
     wine_head, wine_tail = os.path.split(wine_root)
     s3_session = Session()
