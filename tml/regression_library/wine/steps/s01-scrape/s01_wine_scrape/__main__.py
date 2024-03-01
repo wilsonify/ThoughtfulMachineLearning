@@ -69,14 +69,18 @@ def parse_record(record):
     return message
 
 
-def lambda_handler(event, context):
-    print("lambda_handler")
+def process_records_in_series(event):
     event_parsed = parse_event(event)
     for record in event['Records']:
         message = parse_record(record)
         print(f"Start processing one message = {message}")
         process_one_message(message)
         print("Done processing one message")
+
+
+def lambda_handler(event, context):
+    print("lambda_handler")
+    process_records_in_series(event)
     print("Finished processing all messages")
     response = {
         "statusCode": 200,
