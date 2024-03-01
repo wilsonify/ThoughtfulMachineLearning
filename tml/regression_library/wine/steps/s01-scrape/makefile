@@ -1,4 +1,4 @@
-VERSION=0.2.3
+VERSION=0.2.4
 
 
 docker-login-ecr:
@@ -16,7 +16,7 @@ docker-image:
 docker-push: docker-login-ecr
 	docker push 064592191516.dkr.ecr.us-east-1.amazonaws.com/s01_wine_scrape:$(VERSION)
 
-integrate: docker-image docker-login-ecr docker-push
+integrate: docker-image docker-push
 
 deploy:
 	aws lambda update-function-code --function-name s01-wine-scrape-lambda --image-uri 064592191516.dkr.ecr.us-east-1.amazonaws.com/s01_wine_scrape:$(VERSION) > update-result.json
