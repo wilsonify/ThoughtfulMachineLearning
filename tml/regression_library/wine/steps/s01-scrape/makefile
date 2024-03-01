@@ -1,12 +1,19 @@
 VERSION=0.2.3
 
-docker-image:
-	docker build --progress=plain -t 064592191516.dkr.ecr.us-east-1.amazonaws.com/s01_wine_scrape:$(VERSION) .
 
 docker-login-ecr:
 	aws --profile 064592191516 ecr get-login-password | docker login --username AWS --password-stdin 064592191516.dkr.ecr.us-east-1.amazonaws.com
 
-docker-push:
+docker-build-base:
+	docker build --progress=plain -t 064592191516.dkr.ecr.us-east-1.amazonaws.com/s01-wine-scrape-base:$(VERSION) . -f Dockerfile-base
+
+docker-push-base: docker-login-ecr
+	docker push 064592191516.dkr.ecr.us-east-1.amazonaws.com/s01_wine_scrape-base:$(VERSION)
+
+docker-image:
+	docker build --progress=plain -t 064592191516.dkr.ecr.us-east-1.amazonaws.com/s01_wine_scrape:$(VERSION) .
+
+docker-push: docker-login-ecr
 	docker push 064592191516.dkr.ecr.us-east-1.amazonaws.com/s01_wine_scrape:$(VERSION)
 
 integrate: docker-image docker-login-ecr docker-push

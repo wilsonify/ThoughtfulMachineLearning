@@ -71,7 +71,8 @@ def parse_record(record):
 
 def process_records_in_series(event):
     event_parsed = parse_event(event)
-    for record in event['Records']:
+    print("Start processing all messages")
+    for record in event_parsed['Records']:
         message = parse_record(record)
         print(f"Start processing one message = {message}")
         process_one_message(message)
@@ -80,8 +81,9 @@ def process_records_in_series(event):
 
 def lambda_handler(event, context):
     print("lambda_handler")
+    print("start processing all records in series")
     process_records_in_series(event)
-    print("Finished processing all messages")
+    print("done processing all records in series")
     response = {
         "statusCode": 200,
         "body": "Finished processing from s01_wine_scrape lambda"

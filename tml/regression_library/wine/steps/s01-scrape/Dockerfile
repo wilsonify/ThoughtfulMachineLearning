@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/python:3.10
+FROM 064592191516.dkr.ecr.us-east-1.amazonaws.com/s01-wine-scrape-base:0.2.3
 COPY . /var/task
 RUN pip install -r /var/task/requirements.txt
 EXPOSE 8080
