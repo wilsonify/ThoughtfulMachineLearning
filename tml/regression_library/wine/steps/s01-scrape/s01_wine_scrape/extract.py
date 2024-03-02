@@ -1,8 +1,14 @@
+import logging
+
+
 def extract_ratings(data, wine_soup):
     for n, z in enumerate(wine_soup.find_all(attrs={"class": ["pipProdWineRatings"]})):
         ratings_list = z.find_all("li", class_="pipProdWineRatings_item")
         for rating in ratings_list:
             rating_str = rating.text.strip()
+            rating_str = rating_str.replace("Wine &Spirits", "Wine&Spirits")
+            rating_str = rating_str.replace("The SommJournal", "TheSommJournal")
+            logging.debug(f"rating_str = {rating_str}")
             rating_value, rating_name = rating_str.split()
             data[rating_name] = rating_value
 

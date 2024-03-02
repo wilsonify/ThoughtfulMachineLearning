@@ -1,4 +1,5 @@
 import json
+import logging
 import time
 from concurrent.futures import ProcessPoolExecutor
 from datetime import datetime
@@ -9,7 +10,6 @@ import boto3
 import pandas as pd
 import requests
 from boto3 import Session
-
 
 from io_library.list_objects_s3 import list_objects_s3
 from s01_wine_scrape import OUTPUT_BUCKET, OUTPUT_PREFIX
@@ -87,5 +87,6 @@ def enqueue_correct_missing():
 
 
 if __name__ == "__main__":
-    # main_scrape_missing_wine_one_page("wine/s01-scrape/2024-02-25/csv/reports/page_01_missing.csv")
-    main_scrape_wine_parallel()
+    logging.basicConfig(level="DEBUG")
+    # main_correct_missing_one_page("wine/s01-scrape/2024-03-02/csv/reports/page_01_missing.csv")
+    main_correct_missing_parallel()

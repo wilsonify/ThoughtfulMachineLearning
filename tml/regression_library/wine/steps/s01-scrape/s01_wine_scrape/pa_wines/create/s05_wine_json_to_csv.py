@@ -80,5 +80,5 @@ def enqueue_json_to_csv():
 
 
 if __name__ == "__main__":
-    # main_scrape_wine_parallel_pages_json_to_csv()
-    enqueue_json_to_csv()
+    main_scrape_wine_parallel_pages_json_to_csv()
+    # enqueue_json_to_csv()

@@ -1,6 +1,7 @@
 import json
 from io import BytesIO
 
+import bs4
 import pandas as pd
 from boto3 import Session
 
@@ -43,3 +44,15 @@ def read_dict_from_json_s3(bucket: str, key: str):
     json_str = json_bytes.decode('utf-8')
     params = json.loads(json_str)
     return params
+
+
+def read_html_from_s3(bucket, key):
+    s3_session = Session()
+    s3_client = s3_session.client('s3')
+    resp = s3_client.get_object(
+        Bucket=bucket,
+        Key=key
+    )
+    html_content = resp['Body'].read()
+    soup = bs4.BeautifulSoup(html_content, features="lxml")
+    return soup
