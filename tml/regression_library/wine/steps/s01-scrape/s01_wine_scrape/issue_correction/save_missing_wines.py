@@ -14,6 +14,7 @@ from boto3 import Session
 from io_library.list_objects_s3 import list_objects_s3
 from s01_wine_scrape import OUTPUT_BUCKET, OUTPUT_PREFIX
 from s01_wine_scrape.pa_wines.create.s04_wine_html_to_json import main_scrape_one_wine
+from s01_wine_scrape.pa_wines.create.s05_wine_json_to_csv import main_json_to_csv
 
 
 def main_correct_missing_one_page(page_key, today_date_str=None):
@@ -50,6 +51,10 @@ def main_correct_missing_one_page(page_key, today_date_str=None):
         wine_key = f"{OUTPUT_PREFIX}/{today_date_str}/html/wines/{suffix}.html"
         print(f"wine_key = {wine_key}")
         main_scrape_one_wine(wine_key)
+
+    missing_json_df = missing_df[~missing_df["has_csv"]]
+    if missing_json_df.shape[0] > 0:
+        main_json_to_csv(page_key)
 
 
 def main_correct_missing_parallel(today_date_str=None):
