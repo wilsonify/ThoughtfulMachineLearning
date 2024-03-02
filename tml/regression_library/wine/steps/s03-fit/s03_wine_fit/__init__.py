@@ -45,3 +45,6 @@ input_columns_in_order = [
     "WineEnthusiast",  # Other Rating
     "WineSpectator",  # Rating, this is our target variable
 ]
+
+X_COLUMNS = ["price", "JebDunnuck", "RobertParker", "WilfredWong", "Vinous", "Decanter", "ratingValue"]
+Y_COLUMNS = ["WineSpectator"]
