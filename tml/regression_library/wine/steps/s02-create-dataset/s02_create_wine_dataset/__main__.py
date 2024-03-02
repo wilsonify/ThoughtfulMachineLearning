@@ -28,7 +28,7 @@ def ensure_columns(df):
 
 
 def happy_path(context):
-    objs = list_objects_s3(bucket=INPUT_BUCKET, prefix=f"{INPUT_PREFIX}/2024-02-27/csv/pages", glob_pattern='*.csv')
+    objs = list_objects_s3(bucket=INPUT_BUCKET, prefix=f"{INPUT_PREFIX}/2024-03-02/csv/pages", glob_pattern='*.csv')
     dfs_to_concat = []
     for obj in objs:
         print(f"obj = {obj}")

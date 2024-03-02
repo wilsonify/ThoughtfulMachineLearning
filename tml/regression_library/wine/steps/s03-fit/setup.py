@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='s01_wine_scrape',
+    name='s03_wine_fit',
     version='',
     packages=find_packages(),
     url='',
