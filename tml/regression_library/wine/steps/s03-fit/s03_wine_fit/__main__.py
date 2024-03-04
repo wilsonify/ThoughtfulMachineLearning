@@ -1,5 +1,6 @@
 from pprint import pprint
 
+import mlflow.sklearn
 from pycaret.regression import (
     load_model
 )
