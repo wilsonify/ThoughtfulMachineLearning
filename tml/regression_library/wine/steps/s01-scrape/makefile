@@ -1,4 +1,4 @@
-VERSION=0.2.5
+VERSION=0.2.6
 
 
 docker-login-ecr:
@@ -18,10 +18,10 @@ docker-push: docker-login-ecr
 
 integrate: docker-image docker-push
 
-deploy:
-	aws lambda update-function-code --function-name s01-wine-scrape-lambda --image-uri 064592191516.dkr.ecr.us-east-1.amazonaws.com/s01_wine_scrape:$(VERSION) > update-result.json
+deploy.json:
+	aws lambda update-function-code --function-name s01-wine-scrape-lambda --image-uri 064592191516.dkr.ecr.us-east-1.amazonaws.com/s01_wine_scrape:$(VERSION) > deploy.json
 
-cicd: integrate deploy
+cicd: integrate deploy.json
 
 docker-stop:
 	docker stop tvp || true
