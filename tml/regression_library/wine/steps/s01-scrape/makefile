@@ -1,5 +1,7 @@
 VERSION=0.2.7
 
+clean:
+	rm -f deploy.json
 
 docker-login-ecr:
 	aws --profile 064592191516 ecr get-login-password | docker login --username AWS --password-stdin 064592191516.dkr.ecr.us-east-1.amazonaws.com
@@ -21,7 +23,7 @@ integrate: docker-image docker-push
 deploy.json:
 	aws lambda update-function-code --function-name s01-wine-scrape-lambda --image-uri 064592191516.dkr.ecr.us-east-1.amazonaws.com/s01_wine_scrape:$(VERSION) > deploy.json
 
-cicd: integrate deploy.json
+cicd: clean integrate deploy.json
 
 docker-stop:
 	docker stop tvp || true
