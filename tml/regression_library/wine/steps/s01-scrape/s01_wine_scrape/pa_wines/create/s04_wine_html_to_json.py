@@ -53,10 +53,11 @@ def main_scrape_wine_parallel_html_to_json():
         executor.map(main_scrape_one_wine, objs)
 
 
-def enqueue_wine_html_to_json():
+def enqueue_wine_html_to_json(today_date_str=None):
     sqs = boto3.client('sqs')
     queue_url = 'wine-sqs-try'
-    today_date_str = datetime.now().strftime('%Y-%m-%d')
+    if today_date_str is None:
+        today_date_str = datetime.now().strftime('%Y-%m-%d')
     objs = list_objects_s3(
         bucket=OUTPUT_BUCKET,
         prefix=f"{OUTPUT_PREFIX}/{today_date_str}/html/wines",
@@ -65,13 +66,15 @@ def enqueue_wine_html_to_json():
     for obj in objs:
         message_dict = {
             "strategy": "main_scrape_one_wine",
+            "today_date_str": today_date_str,
             "wine_key": obj
         }
         message_str = json.dumps(message_dict)
 
         sqs.send_message(
             QueueUrl=queue_url,
-            MessageBody=message_str
+            MessageBody=message_str,
+
         )
 
 
