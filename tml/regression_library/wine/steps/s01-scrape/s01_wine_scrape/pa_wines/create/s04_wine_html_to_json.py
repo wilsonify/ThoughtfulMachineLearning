@@ -53,7 +53,7 @@ def main_scrape_wine_parallel_html_to_json():
         executor.map(main_scrape_one_wine, objs)
 
 
-def main_enqueue_html_to_json():
+def enqueue_wine_html_to_json():
     sqs = boto3.client('sqs')
     queue_url = 'wine-sqs-try'
     today_date_str = datetime.now().strftime('%Y-%m-%d')
@@ -77,4 +77,4 @@ def main_enqueue_html_to_json():
 
 if __name__ == "__main__":
     # main_scrape_wine_parallel_html_to_json()
-    main_enqueue_html_to_json()
+    enqueue_wine_html_to_json()
