@@ -1,15 +1,20 @@
 import inspect
 import json
+import logging
+import time
 import traceback
+from logging.config import dictConfig
 
 import boto3
 
 from s01_wine_scrape.available import available
 
+sqs = boto3.client('sqs')
+
 
 def on_error(msg):
-    print("on_error")
-    sqs = boto3.client('sqs')
+    logging.info("on_error")
+
     sqs.send_message(
         QueueUrl='wine-sqs-fail',
         MessageBody=json.dumps(msg)
@@ -17,17 +22,17 @@ def on_error(msg):
 
 
 def on_success(msg):
-    print("on_success")
+    logging.info("on_success")
     assert "strategy" in msg, "message must contain strategy"
     strat_str = msg["strategy"]
     strat_func = available[strat_str]
     strat_func_sig = inspect.signature(strat_func)
     valid_keys = strat_func_sig.parameters.keys()
     valid_values = {k: msg[k] for k in valid_keys}
-    print(f"start {strat_str}")
+    logging.info(f"start {strat_str}")
     strat_func(**valid_values)
-    print(f"done {strat_str}")
-    sqs = boto3.client('sqs')
+    logging.info(f"done {strat_str}")
+
     msg_str = json.dumps(msg)
     sqs.send_message(
         QueueUrl='wine-sqs-done',
@@ -37,21 +42,21 @@ def on_success(msg):
 
 def process_one_message(message):
     try:
-        print("happy path")
+        logging.info("happy path")
         on_success(message)
-        print("success")
+        logging.info("success")
     except Exception as e:
-        print(f"Error: {e}")
-        print("unhappy path")
+        logging.info(f"Error: {e}")
+        logging.info("unhappy path")
         try:
             message['error_stack_trace'] = traceback.format_exc()  # Add stack trace to the event
         except:
-            print("could not capture stack trace")
+            logging.info("could not capture stack trace")
         on_error(message)
 
 
 def parse_event(event):
-    print("lambda_handler")
+    logging.info("lambda_handler")
     if 'Records' not in event:
         event = {"Records": [event]}
     assert 'Records' in event, "event from sqs must contain Records"
@@ -71,21 +76,59 @@ def parse_record(record):
 
 def process_records_in_series(event):
     event_parsed = parse_event(event)
-    print("Start processing all messages")
+    logging.info("Start processing all messages")
     for record in event_parsed['Records']:
         message = parse_record(record)
-        print(f"Start processing one message = {message}")
+        logging.info(f"Start processing one message = {message}")
         process_one_message(message)
-        print("Done processing one message")
+        logging.info("Done processing one message")
 
 
 def lambda_handler(event, context):
-    print("lambda_handler")
-    print("start processing all records in series")
+    logging.info("lambda_handler")
+    logging.info("start processing all records in series")
     process_records_in_series(event)
-    print("done processing all records in series")
+    logging.info("done processing all records in series")
     response = {
         "statusCode": 200,
         "body": "Finished processing from s01_wine_scrape lambda"
     }
     return response
+
+
+def process_batch_in_series(batch):
+    logging.info("start process a batch of messages in series")
+    assert 'Messages' in batch, "batch must contain Messages"
+    messages = batch['Messages']
+    n_messages = len(messages)
+    for count, message in enumerate(messages):
+        logging.info(f"{count}/{n_messages}")
+        receipt_handle = message['ReceiptHandle']
+        try:
+            process_records_in_series(message['Body'])
+        except Exception as err:
+            logging.info(f"cool off to prevent tight loop on Error:{err}")
+            time.sleep(5)
+        logging.info("Acknowledge message")
+        sqs.delete_message(
+            QueueUrl='wine-sqs-try',
+            ReceiptHandle=receipt_handle
+        )
+
+
+if __name__ == "__main__":
+    dictConfig(dict(
+        version=1,
+        formatters={"simple": {"format": """%(asctime)s | %(name)s | %(lineno)s | %(levelname)s | %(message)s"""}},
+        handlers={"console": {"class": "logging.StreamHandler", "formatter": "simple"}},
+        root={"handlers": ["console"], "level": logging.DEBUG},
+    ))
+    while True:
+        logging.info("Receive next batch of messages from the queue")
+        process_batch_in_series(sqs.receive_message(
+            QueueUrl='wine-sqs-try',
+            MaxNumberOfMessages=10,
+            WaitTimeSeconds=20  # Long polling to reduce cost and improve responsiveness
+        ))
+        logging.info("Wait for next batch of messages from the queue")
+        time.sleep(10)
