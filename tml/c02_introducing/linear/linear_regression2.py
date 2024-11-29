@@ -9,10 +9,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import stats
 
-from tml.linear.dataset import num_friends_good, daily_minutes_good
-from tml.linear.get_list_to_matrix import get_list_to_matrix
-from tml.linear.get_x_with_an_intercept import get_x_with_an_intercept, get_x_sans_intercept
-from tml.linear.metrics import r_squared
+from tml.c02_introducing.linear.dataset import num_friends_good, daily_minutes_good
+from tml.c02_introducing.linear.get_list_to_matrix import get_list_to_matrix
+from tml.c02_introducing.linear.get_x_with_an_intercept import get_x_with_an_intercept, get_x_sans_intercept
+from tml.c02_introducing.linear.metrics import r_squared
 
 
 def credible_interval_normal(y, confidence_level=0.95):

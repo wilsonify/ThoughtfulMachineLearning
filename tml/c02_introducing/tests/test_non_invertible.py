@@ -1,7 +1,7 @@
 import numpy as np
 
-from tml.linear.get_list_to_matrix import get_list_to_matrix
-from tml.linear.linear_regression2 import MyLinearRegression
+from tml.c02_introducing.linear.get_list_to_matrix import get_list_to_matrix
+from tml.c02_introducing.linear.linear_regression2 import MyLinearRegression
 
 
 def test_non_invertible():

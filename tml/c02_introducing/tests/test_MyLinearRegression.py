@@ -1,7 +1,7 @@
 import logging
 from logging.config import dictConfig
 
-from tml.linear.linear_regression2 import main
+from tml.c02_introducing.linear.linear_regression2 import main
 
 
 def test_main():

@@ -3,10 +3,10 @@ from statsmodels import api as sm
 from statsmodels.sandbox.regression.predstd import wls_prediction_std
 from statsmodels.stats.outliers_influence import summary_table
 
-from tml.linear.dataset import num_friends_good, daily_minutes_good
-from tml.linear.get_list_to_matrix import get_list_to_matrix
-from tml.linear.get_x_with_an_intercept import get_x_with_an_intercept
-from tml.linear.linear_regression2 import MyLinearRegression
+from tml.c02_introducing.linear.dataset import num_friends_good, daily_minutes_good
+from tml.c02_introducing.linear.get_list_to_matrix import get_list_to_matrix
+from tml.c02_introducing.linear.get_x_with_an_intercept import get_x_with_an_intercept
+from tml.c02_introducing.linear.linear_regression2 import MyLinearRegression
 
 
 def test_interval():
