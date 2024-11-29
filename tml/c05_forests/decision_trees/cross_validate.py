@@ -1,19 +1,25 @@
 from classifier import MushroomTree, MushroomForest, MushroomRegression
 
-data = './data/agaricus-lepiota.data'
-folds = 5
 
-print("Calculating score for decision tree")
+def main():
+    data = './data/agaricus-lepiota.data'
+    folds = 5
 
-tree = MushroomTree(data)
-print(tree.validate(folds))
+    print("Calculating score for decision tree")
 
-print("Calculating score for random forest method")
+    tree = MushroomTree(data)
+    print(tree.validate(folds))
 
-forest = MushroomForest(data)
-print(forest.validate(folds))
+    print("Calculating score for random forest method")
 
-print("Calculating score for regression tree")
+    forest = MushroomForest(data)
+    print(forest.validate(folds))
 
-regression = MushroomRegression(data)
-print(regression.validate(folds))
+    print("Calculating score for regression tree")
+
+    regression = MushroomRegression(data)
+    print(regression.validate(folds))
+
+
+if __name__ == "__main__":
+    main()
