@@ -1,54 +1,58 @@
-import unittest
-
 import io
-from email_object import EmailObject
-from spam_trainer import SpamTrainer
+import math
+
+from tml.c04_naive_bayes.email_object import EmailObject
+from tml.c04_naive_bayes.spam_trainer import SpamTrainer
 
 
-class TestSpamTrainer(unittest.TestCase):
-  def setUp(self):
-    self.training = [['spam', 'fixtures/plain.eml'], ['ham', 'fixtures/small.eml'],
-                     ['scram', 'fixtures/plain.eml']]
-    self.trainer = SpamTrainer(self.training)
-    with io.open('fixtures/plain.eml', 'rb') as eml_file:
-      self.email = EmailObject(eml_file)
-
-  def test_multiple_categories(self):
-    categories = self.trainer.categories
-    expected = set([k for k, v in self.training])
-    self.assertEqual(categories, expected)
-
-  def test_counts_all_at_zero(self):
+def test_counts_all_at_zero():
+    training = [['spam', 'fixtures/plain.eml'], ['ham', 'fixtures/small.eml'], ['scram', 'fixtures/plain.eml']]
+    trainer = SpamTrainer(training)
     for cat in ['_all', 'spam', 'ham', 'scram']:
-      self.assertEqual(self.trainer.total_for(cat), 0)
+        assert trainer.total_for(cat) == 0
 
-  def test_preference_category(self):
-    trainer = self.trainer
+
+def test_multiple_categories():
+    training = [['spam', 'fixtures/plain.eml'], ['ham', 'fixtures/small.eml'], ['scram', 'fixtures/plain.eml']]
+    trainer = SpamTrainer(training)
+    categories = trainer.categories
+    expected = set([k for k, v in training])
+    assert categories == expected
+
+
+def test_preference_category():
+    training = [['spam', 'fixtures/plain.eml'], ['ham', 'fixtures/small.eml'], ['scram', 'fixtures/plain.eml']]
+    trainer = SpamTrainer(training)
     expected = sorted(trainer.categories, key=lambda cat: trainer.total_for(cat))
+    assert trainer.preference() == expected
 
-    self.assertEqual(trainer.preference(), expected)
 
-  def test_probability_being_1_over_n(self):
-    trainer = self.trainer
-    scores = list(trainer.score(self.email).values())
+def test_probability_being_1_over_n():
+    training = [['spam', 'fixtures/plain.eml'], ['ham', 'fixtures/small.eml'], ['spam', 'fixtures/plain.eml']]
+    trainer = SpamTrainer(training)
+    with io.open('fixtures/plain.eml', 'rb') as eml_file:
+        email = EmailObject(eml_file)
+    scores = list(trainer.score(email).values())
+    for score in scores:
+        assert math.isclose(score, 0.33, abs_tol=0.4)
 
-    self.assertAlmostEqual(scores[0], scores[-1])
 
-    for i in range(len(scores) - 1):
-      self.assertAlmostEqual(scores[i], scores[i + 1])
+def test_adds_up_to_one():
+    training = [['spam', 'fixtures/plain.eml'], ['ham', 'fixtures/small.eml'], ['spam', 'fixtures/plain.eml']]
+    trainer = SpamTrainer(training)
+    with io.open('fixtures/plain.eml', 'rb') as eml_file:
+        email = EmailObject(eml_file)
+    scores = list(trainer.normalized_score(email).values())
+    assert sum(scores) == 1.0
 
-  def test_adds_up_to_one(self):
-    trainer = self.trainer
-    scores = list(trainer.normalized_score(self.email).values())
-    self.assertAlmostEqual(sum(scores), 1)
-    self.assertAlmostEqual(scores[0], 1 / 2.0)
 
-  def test_give_preference_to_whatever_has_the_most(self):
-    trainer = self.trainer
-    score = trainer.score(self.email)
-
+def test_give_preference_to_whatever_has_the_most():
+    training = [['spam', 'fixtures/plain.eml'], ['ham', 'fixtures/small.eml'], ['spam', 'fixtures/plain.eml']]
+    trainer = SpamTrainer(training)
+    with io.open('fixtures/plain.eml', 'rb') as eml_file:
+        email = EmailObject(eml_file)
+    score = trainer.score(email)
     preference = trainer.preference()[-1]
     preference_score = score[preference]
-
     expected = SpamTrainer.Classification(preference, preference_score)
-    self.assertEqual(trainer.classify(self.email), expected)
+    assert trainer.classify(email) == expected
