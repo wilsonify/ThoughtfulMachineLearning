@@ -50,7 +50,11 @@ def export_books_to_json(sqlite_file, output_dir):
                 series_name = ""
 
             tags_ids = pd.read_sql(f"""SELECT tag FROM books_tags_link WHERE book={book_id}""", conn)
-            tags_list = tags_ids["tag"].to_list()
+            tag_ids_list = tags_ids["tag"].to_list()
+            tags_list = []
+            for tag_id in tag_ids_list:
+                tag_text = pd.read_sql(f"""SELECT name FROM tags WHERE id={tag_id}""", conn).loc[0, "name"]
+                tags_list.append(tag_text)
 
             try:
                 comments_text = pd.read_sql(f"""SELECT text FROM comments WHERE book={book_id}""", conn).loc[0, "text"]
@@ -73,6 +77,5 @@ def export_books_to_json(sqlite_file, output_dir):
             json.dump(book_dict, open(file_path, 'w'), default=str, indent=2)
 
 
-# Example usage
 if __name__ == "__main__":
     export_books_to_json("data/input/metadata.db", "data/output_actual/books_metadata")
