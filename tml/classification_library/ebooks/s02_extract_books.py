@@ -18,7 +18,7 @@ def safe_filename(book_id, title):
 def export_books_to_json(sqlite_file, output_dir):
     os.makedirs(output_dir, exist_ok=True)
     with sqlite3.connect(sqlite_file) as conn:
-        books_df = pd.read_sql("SELECT * FROM books LIMIT 3", conn)
+        books_df = pd.read_sql("SELECT * FROM books", conn)
         for _, row in books_df.iterrows():
             book_id = row['id']
             book_uuid = row['uuid']
@@ -45,6 +45,7 @@ def export_books_to_json(sqlite_file, output_dir):
 
             tags_ids = pd.read_sql(f"""SELECT tag FROM books_tags_link WHERE book={book_id}""", conn)
             tags_list = tags_ids["tag"].to_list()
+
             try:
                 comments_text = pd.read_sql(f"""SELECT text FROM comments WHERE book={book_id}""", conn).loc[0, "text"]
             except:
