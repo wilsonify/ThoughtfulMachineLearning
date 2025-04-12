@@ -12,7 +12,7 @@ def safe_filename(book_id, title):
         .replace('\\', '-')
         .replace(' ', '-')
     )
-    return f"{book_id:02d}-{sanitized_title}.json"
+    return f"{book_id:04d}-{sanitized_title}.json"
 
 
 def export_books_to_json(sqlite_file, output_dir):
@@ -28,11 +28,17 @@ def export_books_to_json(sqlite_file, output_dir):
             author_id = pd.read_sql(f"""SELECT author FROM books_authors_link WHERE book = {book_id}""", conn).loc[
                 0, "author"]
             author_name = pd.read_sql(f"""SELECT name FROM authors WHERE id = {author_id}""", conn).loc[0, "name"]
-            publisher_id = \
-                pd.read_sql(f"""SELECT publisher FROM books_publishers_link WHERE book={book_id}""", conn).loc[
-                    0, "publisher"]
-            publisher_name = pd.read_sql(f"""SELECT name FROM publishers WHERE id = {publisher_id}""", conn).loc[
-                0, "name"]
+            try:
+                publisher_id = (pd
+                .read_sql(f"""SELECT publisher FROM books_publishers_link WHERE book={book_id}""", conn)
+                .loc[0, "publisher"]
+                )
+                publisher_name = (
+                    pd.read_sql(f"""SELECT name FROM publishers WHERE id = {publisher_id}""", conn)
+                    .loc[0, "name"]
+                )
+            except:
+                publisher_name = "unknown"
 
             try:
                 series_id = (
