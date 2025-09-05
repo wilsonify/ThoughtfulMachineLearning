@@ -6,9 +6,11 @@ from io import StringIO
 import codecs
 import os
 import re
-from nose_parameterized import parameterized
-from tml.artificial_neural_networks.language import Language
-from tml.artificial_neural_networks.network import Network
+
+import pytest
+
+from tml.c08_neural_networks.artificial_neural_networks.language import Language
+from tml.c08_neural_networks.artificial_neural_networks.network import Network
 
 
 def language_name(file_name):
@@ -32,7 +34,7 @@ class TestNetwork(unittest.TestCase):
   acts_verses = Network(acts_languages)
   acts_verses.train()
 
-  @parameterized.expand('English Finnish German Norwegian Polish Swedish'.split())
+  @pytest.mark.parameterize.expand('English Finnish German Norwegian Polish Swedish'.split())
   def test_accuracy(self, lang):
     """Trains and cross-validates with an error of 5%"""
     print('Test for %s' % lang)

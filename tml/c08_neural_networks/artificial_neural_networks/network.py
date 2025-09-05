@@ -1,7 +1,6 @@
 import numpy as np
-import theanets
 
-from tml.naive_bayes.tokenizer import Tokenizer
+from tml.c08_neural_networks.artificial_neural_networks.tokenizer import Tokenizer
 
 
 class Network(object):
