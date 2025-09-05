@@ -1,8 +1,0 @@
-pytest
-numpy
-matplotlib
-scipy
-statsmodels
-scikit-learn
-bs4
-xgboost

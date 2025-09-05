@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=65.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,9 +7,24 @@ name = "tml"
 version = "0.1.0"
 description = "Thoughtful Machine Learning"
 keywords = ["datascience", "python"]
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "scipy",
+    "statsmodels",
+    "scikit-learn",
+    "bs4",
+    "xgboost"
+]
 
 [project.urls]
 homepage = "https://github.com/wilsonify/thoughtfulmachinelearning"
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+tml-run = "tml.cli:main"
 
 [tool.setuptools]
 packages = ["tml"]
