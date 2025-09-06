@@ -4,7 +4,7 @@ require 'geocoder'
 
 require 'pry'
 
-Geocoder.configure(:lookup => :bing, :api_key => " AjLDV1xNmvz45hsnvPuISVI8hjFrSYkjxij3AcJMShIzYNh25fL7QhkYA_Te3_hJ")
+Geocoder.configure(:lookup => :bing, :api_key => "")
 
 dc = Dalli::Client.new('localhost:11211')
 headers = nil
