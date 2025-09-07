@@ -12,12 +12,12 @@ Update model registry with new version.
 Optionally deprecate or tag old model.
 
 """
-
-from datetime import datetime
 import os
 import pickle
-import pandas as pd
+from datetime import datetime
+from datetime import timezone
 
+import pandas as pd
 from airflow import DAG
 from airflow.decorators import task
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
@@ -38,14 +38,13 @@ default_args = {
 }
 
 with DAG(
-    dag_id="s04_model_update_pipeline",
-    default_args=default_args,
-    description="Retrain and persist a new KNN model version",
-    schedule="@weekly",   # adjust cadence as needed
-    start_date=datetime(2023, 1, 1),
-    catchup=False,
+        dag_id="s04_model_update_pipeline",
+        default_args=default_args,
+        description="Retrain and persist a new KNN model version",
+        schedule="@weekly",  # adjust cadence as needed
+        start_date=datetime(2023, 1, 1),
+        catchup=False,
 ) as dag:
-
     @task
     def load_training_data(limit: int = None):
         """Load transformed data for training."""
@@ -61,6 +60,7 @@ with DAG(
 
         return {"features": X.to_dict(orient="list"), "target": y.to_list()}
 
+
     @task
     def train_model(data: dict, n_neighbors: int = 5):
         """Fit KNNModel and return fitted object + version info."""
@@ -70,8 +70,9 @@ with DAG(
         model = KNNModel(k=n_neighbors)
         model.fit(X, y)
 
-        version = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+        version = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
         return {"model": model, "version": version, "params": {"k": n_neighbors}}
+
 
     @task
     def serialize_and_archive(model_info: dict):
@@ -87,6 +88,7 @@ with DAG(
             pickle.dump(model, f)
 
         return {"version": version, "pickle_path": pickle_path, "params": model_info["params"]}
+
 
     insert_metadata = SQLExecuteQueryOperator(
         task_id="insert_metadata",
