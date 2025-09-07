@@ -28,3 +28,30 @@ MRMR feature selection has several advantages:
     MRMR is suitable for high-dimensional datasets with many features, where selecting the most relevant features can improve computational efficiency and reduce the risk of overfitting.
 
 Overall, MRMR feature selection is a powerful technique for identifying informative features and improving the performance of machine learning models by focusing on the most relevant and least redundant subset of features.
+
+
+
+Design Observations
+
+Keep models and assets separate: models are global, assets are specific.
+
+Consider model versioning: don’t overwrite; always create new versions.
+
+Add scheduling layer for twice-daily runs: either an external orchestrator (Airflow, Dagster) or an API-backed schedule table.
+
+Include a leaderboard endpoint if model selection is competitive.
+
+
+How This Fits Into the Big Picture
+
+CRUD + compare: covers model lifecycle.
+
+Screen, characterize, optimize: cover model improvement and selection stages.
+
+Predict/score on assets: connects the models to their actual use case (your twice-daily runs).
+
+Together, this design gives you:
+
+A management plane (create/read/update/compare/screen/characterize/optimize)
+
+A serving plane (/assets/{id}/predict, /assets/{id}/score)

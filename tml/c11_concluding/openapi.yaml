@@ -1,0 +1,384 @@
+openapi: 3.1.0
+info:
+  title: Asset-ML Model Management API
+  version: 1.0.0
+  description: API for managing machine learning models and applying predictions to assets twice per day.
+servers:
+  - url: https://api.example.com/v1
+
+paths:
+  /assets/{asset_id}/predict:
+    post:
+      summary: Predict for an asset
+      description: Generate a prediction for a specific asset using the default or specified model.
+      parameters:
+        - name: asset_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: model_id
+          in: query
+          required: false
+          schema:
+            type: string
+      requestBody:
+        description: Optional payload for prediction (input features)
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: Prediction result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionResponse'
+
+  /assets/{asset_id}/score:
+    post:
+      summary: Record scoring metrics for an asset
+      parameters:
+        - name: asset_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Scoring metrics to log
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScoreRequest'
+      responses:
+        '200':
+          description: Score logged successfully
+
+  /models:
+    post:
+      summary: Create a new model
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelCreateRequest'
+      responses:
+        '201':
+          description: Model created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Model'
+
+    get:
+      summary: List all models
+      responses:
+        '200':
+          description: List of models
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Model'
+
+  /models/{model_id}:
+    get:
+      summary: Retrieve model metadata
+      parameters:
+        - name: model_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Model metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Model'
+
+    patch:
+      summary: Update model metadata
+      parameters:
+        - name: model_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelUpdateRequest'
+      responses:
+        '200':
+          description: Updated model
+
+    delete:
+      summary: Retire a model
+      parameters:
+        - name: model_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Model retired
+
+  /models/compare:
+    post:
+      summary: Compare multiple models
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelCompareRequest'
+      responses:
+        '200':
+          description: Comparison results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelCompareResponse'
+
+  /models/screen:
+    post:
+      summary: Screen candidate models
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelScreenRequest'
+      responses:
+        '200':
+          description: Screening results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelScreenResponse'
+
+  /models/{model_id}/characterize:
+    post:
+      summary: Characterize a model
+      parameters:
+        - name: model_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Dataset or options for characterization
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: Characterization report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelCharacterizationResponse'
+
+  /models/{model_id}/optimize:
+    post:
+      summary: Optimize a model
+      parameters:
+        - name: model_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelOptimizeRequest'
+      responses:
+        '200':
+          description: Optimized model
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelOptimizeResponse'
+
+components:
+  schemas:
+    PredictionResponse:
+      type: object
+      properties:
+        asset_id:
+          type: string
+        model_id:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        prediction:
+          type: object
+          properties:
+            value:
+              type: number
+            confidence:
+              type: number
+
+    ScoreRequest:
+      type: object
+      properties:
+        metric_name:
+          type: string
+        value:
+          type: number
+        timestamp:
+          type: string
+          format: date-time
+
+    Model:
+      type: object
+      properties:
+        model_id:
+          type: string
+        version:
+          type: string
+        status:
+          type: string
+          enum: [active, retired, archived]
+        created_at:
+          type: string
+          format: date-time
+        metrics:
+          type: object
+          additionalProperties:
+            type: number
+
+    ModelCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        training_data:
+          type: string
+
+    ModelUpdateRequest:
+      type: object
+      properties:
+        description:
+          type: string
+        status:
+          type: string
+          enum: [active, retired, archived]
+
+    ModelCompareRequest:
+      type: object
+      properties:
+        models:
+          type: array
+          items:
+            type: string
+        dataset:
+          type: string
+
+    ModelCompareResponse:
+      type: object
+      properties:
+        comparisons:
+          type: array
+          items:
+            type: object
+            properties:
+              model_id:
+                type: string
+              metric_name:
+                type: string
+              value:
+                type: number
+
+    ModelScreenRequest:
+      type: object
+      properties:
+        candidate_models:
+          type: array
+          items:
+            type: string
+        dataset:
+          type: string
+
+    ModelScreenResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              model_id:
+                type: string
+              score:
+                type: number
+        shortlist:
+          type: array
+          items:
+            type: string
+
+    ModelCharacterizationResponse:
+      type: object
+      properties:
+        model_id:
+          type: string
+        feature_importance:
+          type: object
+          additionalProperties:
+            type: number
+        bias_analysis:
+          type: object
+          additionalProperties:
+            type: number
+        stability:
+          type: object
+          additionalProperties:
+            type: number
+
+    ModelOptimizeRequest:
+      type: object
+      properties:
+        search_space:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: number
+        strategy:
+          type: string
+        dataset:
+          type: string
+
+    ModelOptimizeResponse:
+      type: object
+      properties:
+        original_model:
+          type: string
+        new_model:
+          type: string
+        best_params:
+          type: object
+          additionalProperties:
+            type: number
+        performance:
+          type: object
+          additionalProperties:
+            type: number
