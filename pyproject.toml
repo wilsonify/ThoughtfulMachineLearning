@@ -14,7 +14,9 @@ dependencies = [
     "statsmodels",
     "scikit-learn",
     "bs4",
-    "xgboost"
+    "xgboost",
+    "apache-airflow-providers-postgres",
+    "apache-airflow",
 ]
 
 [project.urls]
@@ -22,9 +24,6 @@ homepage = "https://github.com/wilsonify/thoughtfulmachinelearning"
 
 [project.optional-dependencies]
 dev = ["pytest"]
-
-[project.scripts]
-tml-run = "tml.cli:main"
 
 [tool.setuptools]
 packages = ["tml"]

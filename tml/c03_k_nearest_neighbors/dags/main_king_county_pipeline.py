@@ -1,9 +1,12 @@
-from airflow import DAG
 from datetime import datetime
+
+from airflow import DAG
+from airflow.utils.task_group import TaskGroup
 
 from tml.c03_k_nearest_neighbors.dags.s01_download_datasets import make_download_tasks
 from tml.c03_k_nearest_neighbors.dags.s02_load_stage import make_load_tasks
 from tml.c03_k_nearest_neighbors.dags.s03_transform import make_transform_task
+from tml.c03_k_nearest_neighbors.dags.s04_archive import make_archive_task
 from tml.c03_k_nearest_neighbors.dags.s05_backfill_slowly import make_backfill_task
 
 # Data source URLs and paths
@@ -22,7 +25,6 @@ OUTPUT_PATH = f"{TMP_DIR}/king_county_data.csv"
 
 POSTGRES_CONN_ID = "my_postgres"
 
-
 default_args = {
     "owner": "airflow",
     "depends_on_past": False,
@@ -30,20 +32,22 @@ default_args = {
 }
 
 with DAG(
-    "king_county_pipeline",
-    default_args=default_args,
-    description="ETL pipeline for King County Assessor data",
-    schedule_interval="@monthly",
-    start_date=datetime(2023, 1, 1),
-    catchup=False,
+        "king_county_pipeline",
+        default_args=default_args,
+        description="ETL pipeline for King County Assessor data",
+        schedule="@monthly",
+        start_date=datetime(2023, 1, 1),
+        catchup=False,
 ) as dag:
+    with TaskGroup("downloads") as downloads_group:
+        downloads = make_download_tasks()
 
-    downloads = make_download_tasks()
-    loads = make_load_tasks()
-    transform = make_transform_task()
-    backfill = make_backfill_task()
+    with TaskGroup("loads") as loads_group:
+        loads = make_load_tasks()
 
-    # dependencies
-    [downloads["parcel"], downloads["resbldg"], downloads["acct"], downloads["sale"]] >> [
-        loads["parcel"], loads["resbldg"], loads["acct"], loads["sale"]
-    ] >> transform >> backfill
+    transform_task = make_transform_task()
+    backfill_task = make_backfill_task()
+    archive_task = make_archive_task()  # this now returns the task
+
+    # DAG dependencies
+    downloads_group >> loads_group >> transform_task >> backfill_task >> archive_task

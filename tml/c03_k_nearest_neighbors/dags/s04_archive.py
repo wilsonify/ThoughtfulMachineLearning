@@ -1,15 +1,29 @@
-# Data source URLs and paths
+import os
+import shutil
+from datetime import datetime
 
-PARCEL_URL = "https://data.kingcounty.gov/api/views/qzjh-2p79/rows.csv?accessType=DOWNLOAD"
-RESBLDG_URL = "https://data.kingcounty.gov/api/views/f29f-zza5/rows.csv?accessType=DOWNLOAD"
-ACCT_URL = "https://data.kingcounty.gov/api/views/i2sg-4vkb/rows.csv?accessType=DOWNLOAD"
-SALE_URL = "https://data.kingcounty.gov/api/views/nu5z-2fpr/rows.csv?accessType=DOWNLOAD"
-
-TMP_DIR = "/tmp/king_county"
-PARCEL_PATH = f"{TMP_DIR}/EXTR_Parcel.csv"
-RESBLDG_PATH = f"{TMP_DIR}/EXTR_ResBldg.csv"
-ACCT_PATH = f"{TMP_DIR}/EXTR_RPAcct_NoName.csv"
-SALE_PATH = f"{TMP_DIR}/EXTR_RPSale.csv"
-OUTPUT_PATH = f"{TMP_DIR}/king_county_data.csv"
+from airflow.decorators import task
 
 POSTGRES_CONN_ID = "my_postgres"
+OUTPUT_PATH = "/tmp/king_county/king_county_data.csv"
+LOCAL_ARCHIVE_PATH = "/mnt/SSD1/mrepos/github.com/wilsonify/ThoughtfulMachineLearning/tml/c03_k_nearest_neighbors/data/archive"
+
+
+def make_archive_task():
+    @task
+    def ensure_archive_dir():
+        os.makedirs(LOCAL_ARCHIVE_PATH, exist_ok=True)
+        return LOCAL_ARCHIVE_PATH
+
+    @task
+    def archive_csv(archive_dir: str):
+        if not os.path.exists(OUTPUT_PATH):
+            raise FileNotFoundError(f"{OUTPUT_PATH} does not exist. Run transform task first.")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        archive_file = os.path.join(archive_dir, f"king_county_data_{timestamp}.csv")
+        shutil.copy2(OUTPUT_PATH, archive_file)
+        return archive_file
+
+    archive_dir = ensure_archive_dir()
+    archive_task = archive_csv(archive_dir)
+    return archive_task
